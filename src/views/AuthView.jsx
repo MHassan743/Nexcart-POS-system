@@ -31,12 +31,12 @@ export const AuthView = ({ onCompleteAuth }) => {
   // Signup Form State
   const [signupForm, setSignupForm] = useState({
     storeName: '',
-    businessType: 'crockery',
+    businessType: 'general',
     ownerName: '',
     ownerEmail: '',
-    ownerPin: '9999',
-    currency: 'GBP',
-    taxRate: 20,
+    ownerPin: '',
+    currency: 'PKR',
+    taxRate: 0,
     phone: '',
     address: ''
   });
@@ -84,14 +84,14 @@ export const AuthView = ({ onCompleteAuth }) => {
   const handleSignupSubmit = (e) => {
     e.preventDefault();
     setError('');
-    if (!signupForm.storeName || !signupForm.ownerEmail || !signupForm.ownerName) {
-      setError('Please fill in all required store information');
+    if (!signupForm.storeName || !signupForm.ownerEmail || !signupForm.ownerName || !signupForm.ownerPin) {
+      setError('Please fill in all required store and owner information');
       return;
     }
 
     try {
       registerStore(signupForm);
-      setSuccessMsg('Store registered successfully under Nexcart Serverless Cloud Hub!');
+      setSuccessMsg('Store registered successfully!');
       setTimeout(() => {
         onCompleteAuth();
       }, 1000);
@@ -222,19 +222,6 @@ export const AuthView = ({ onCompleteAuth }) => {
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
-
-              {/* Quick Demo Credentials hint */}
-              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
-                <div className="font-bold text-sky-400 uppercase tracking-wide">Demo Cashier PINs:</div>
-                <div className="flex justify-between">
-                  <span>Senior Cashier: <strong className="text-white">1234</strong></span>
-                  <span>Junior Cashier: <strong className="text-white">5678</strong></span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Store Owner: <strong className="text-white">9999</strong></span>
-                  <span>Store Manager: <strong className="text-white">8888</strong></span>
-                </div>
-              </div>
             </div>
           )}
 
@@ -248,10 +235,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                   <input
                     type="email"
                     required
-                    placeholder="admin@nexcart.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500"
                   />
                 </div>
               </div>
@@ -263,10 +249,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                   <input
                     type="password"
                     required
-                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500"
                   />
                 </div>
               </div>
@@ -278,10 +263,6 @@ export const AuthView = ({ onCompleteAuth }) => {
                 <span>Sign In as Store Owner</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-
-              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 text-center">
-                Demo Owner Email: <strong className="text-sky-300">admin@nexcart.com</strong> (Password: any)
-              </div>
             </form>
           )}
 
@@ -293,10 +274,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Royal Crockery & Glassware London"
                   value={signupForm.storeName}
                   onChange={(e) => setSignupForm({ ...signupForm, storeName: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
@@ -317,11 +297,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                     }}
                     className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="crockery">Crockery & Home Goods</option>
-                    <option value="grocery">Grocery & Supermarket</option>
-                    <option value="electronics">Electronics & Gadgets</option>
-                    <option value="fashion">Fashion & Apparel</option>
-                    <option value="general">General Retail</option>
+                    {Object.values(BUSINESS_TYPES).map(b => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
                   </select>
                 </div>
 
@@ -332,10 +310,10 @@ export const AuthView = ({ onCompleteAuth }) => {
                     onChange={(e) => setSignupForm({ ...signupForm, currency: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="GBP">GBP (£)</option>
-                    <option value="USD">USD ($)</option>
-                    <option value="EUR">EUR (€)</option>
                     <option value="PKR">PKR (₨)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="EUR">EUR (€)</option>
                     <option value="AED">AED (Dh)</option>
                   </select>
                 </div>
@@ -347,10 +325,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                   <input
                     type="text"
                     required
-                    placeholder="Full Name"
                     value={signupForm.ownerName}
                     onChange={(e) => setSignupForm({ ...signupForm, ownerName: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
@@ -358,10 +335,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                   <input
                     type="email"
                     required
-                    placeholder="owner@store.com"
                     value={signupForm.ownerEmail}
                     onChange={(e) => setSignupForm({ ...signupForm, ownerEmail: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
@@ -370,8 +346,9 @@ export const AuthView = ({ onCompleteAuth }) => {
                 <div>
                   <label className="block text-[11px] font-medium text-slate-300 mb-1">Till Owner PIN *</label>
                   <input
-                    type="text"
+                    type="password"
                     maxLength={4}
+                    required
                     value={signupForm.ownerPin}
                     onChange={(e) => setSignupForm({ ...signupForm, ownerPin: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white text-center font-mono focus:outline-none focus:border-emerald-500"
@@ -393,7 +370,7 @@ export const AuthView = ({ onCompleteAuth }) => {
                 className="w-full py-3 mt-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Register Store on Nexcart Serverless Cloud</span>
+                <span>Register Store on Nexcart Cloud</span>
               </button>
             </form>
           )}
