@@ -56,38 +56,7 @@ export const INITIAL_PRODUCTS = {
   general: []
 };
 
-export const INITIAL_EMPLOYEES = [
-  {
-    id: 'emp-001',
-    name: 'Alexander Wright',
-    email: 'admin@nexcart.com',
-    pin: '9999',
-    role: 'OWNER',
-    tillAccess: true,
-    phone: '+44 7911 123456',
-    status: 'ACTIVE'
-  },
-  {
-    id: 'emp-002',
-    name: 'Victoria Hughes',
-    email: 'manager@nexcart.com',
-    pin: '8888',
-    role: 'MANAGER',
-    tillAccess: true,
-    phone: '+44 7911 654321',
-    status: 'ACTIVE'
-  },
-  {
-    id: 'emp-003',
-    name: 'James Carter',
-    email: 'j.carter@store.com',
-    pin: '1234',
-    role: 'CASHIER',
-    tillAccess: true,
-    phone: '+44 7911 888999',
-    status: 'ACTIVE'
-  }
-];
+export const INITIAL_EMPLOYEES = [];
 
 export const INITIAL_CUSTOMERS = [];
 

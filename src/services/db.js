@@ -38,50 +38,54 @@ const setStorage = (key, data) => {
 export const DB = {
   // Initialize Database with Defaults if Empty
   init: () => {
-    // Schema v2.6: Clear dummy seed data from older sessions
-    const SCHEMA_VERSION = '2.6';
+    // Schema v2.7: Clear dummy seed data and initialize clean blank system for real stores
+    const SCHEMA_VERSION = '2.7';
     const storedVersion = localStorage.getItem('nexcart_schema_version');
     if (storedVersion !== SCHEMA_VERSION) {
-      // Remove stale global hub dummy records and walk-in customer
+      localStorage.removeItem(STORAGE_KEYS.CURRENT_STORE);
+      localStorage.removeItem(STORAGE_KEYS.EMPLOYEES);
+      localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
       localStorage.removeItem(STORAGE_KEYS.GLOBAL_HUB);
       localStorage.removeItem(STORAGE_KEYS.CUSTOMERS);
+      localStorage.removeItem(STORAGE_KEYS.AUDIT_LOGS);
+      localStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER);
       localStorage.setItem('nexcart_schema_version', SCHEMA_VERSION);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.GLOBAL_HUB)) {
-      setStorage(STORAGE_KEYS.GLOBAL_HUB, INITIAL_NEXCART_SERVERLESS_HUB); // now empty []
+      setStorage(STORAGE_KEYS.GLOBAL_HUB, []);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.CURRENT_STORE)) {
       const defaultStore = {
-        storeId: 'store-uk-001',
-        storeName: 'Royal Crockery & Home Goods',
-        businessType: 'crockery',
-        ownerName: 'Alexander Wright',
-        ownerEmail: 'admin@nexcart.com',
-        phone: '+44 20 7946 0912',
-        address: '27 Huxley Gardens, London NW10 7EB, UK',
-        currency: 'GBP',
-        currencySymbol: '£',
-        taxRate: 20,
+        storeId: `store-${Date.now().toString(36)}`,
+        storeName: '',
+        ownerName: '',
+        ownerEmail: '',
+        ownerPin: '1234',
+        phone: '',
+        address: '',
+        currency: 'PKR',
+        currencySymbol: '₨',
+        taxRate: 0,
         registeredAt: new Date().toISOString(),
-        plan: 'ENTERPRISE PRO',
-        status: 'ACTIVE',
-        discrepancyThreshold: 0
+        plan: 'NEXCART PRO',
+        status: 'ACTIVE'
       };
       setStorage(STORAGE_KEYS.CURRENT_STORE, defaultStore);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
-      setStorage(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS.crockery);
+      setStorage(STORAGE_KEYS.PRODUCTS, []);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.EMPLOYEES)) {
-      setStorage(STORAGE_KEYS.EMPLOYEES, INITIAL_EMPLOYEES);
+      setStorage(STORAGE_KEYS.EMPLOYEES, []);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.CUSTOMERS)) {
-      setStorage(STORAGE_KEYS.CUSTOMERS, INITIAL_CUSTOMERS);
+      setStorage(STORAGE_KEYS.CUSTOMERS, []);
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.TRANSACTIONS)) {
@@ -101,19 +105,7 @@ export const DB = {
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) {
-      const initialLogs = [
-        {
-          id: 'log-101',
-          timestamp: new Date(Date.now() - 86400000).toISOString(),
-          employeeId: 'emp-001',
-          employeeName: 'Alexander Wright',
-          role: 'OWNER',
-          action: 'STORE_INITIALIZED',
-          details: 'Nexcart POS System initialized for Royal Crockery & Home Goods',
-          tillId: 'Till-01'
-        }
-      ];
-      setStorage(STORAGE_KEYS.AUDIT_LOGS, initialLogs);
+      setStorage(STORAGE_KEYS.AUDIT_LOGS, []);
     }
   },
 
@@ -122,12 +114,42 @@ export const DB = {
   updateStore: (updatedFields) => {
     const store = { ...DB.getStore(), ...updatedFields };
     setStorage(STORAGE_KEYS.CURRENT_STORE, store);
+
+    // Sync / Create Owner employee record for Till PIN login & profile
+    let employees = DB.getEmployees();
+    let ownerIdx = employees.findIndex(e => e.role === 'OWNER');
+    const ownerData = {
+      id: ownerIdx !== -1 ? employees[ownerIdx].id : `emp-owner-${Date.now()}`,
+      name: store.ownerName || store.storeName || 'Store Owner',
+      email: store.ownerEmail || 'owner@store.com',
+      pin: store.ownerPin || '1234',
+      role: 'OWNER',
+      tillAccess: true,
+      phone: store.phone || '',
+      status: 'ACTIVE'
+    };
+
+    if (ownerIdx !== -1) {
+      employees[ownerIdx] = ownerData;
+    } else {
+      employees = [ownerData, ...employees];
+    }
+    setStorage(STORAGE_KEYS.EMPLOYEES, employees);
+
+    // If active user is owner, update active user
+    const active = DB.getActiveUser();
+    if (!active || active.role === 'OWNER') {
+      DB.setActiveUser(ownerData);
+    }
     
-    // Also update serverless central hub
+    // Also update serverless central hub if registered
     const hub = getStorage(STORAGE_KEYS.GLOBAL_HUB, []);
     const idx = hub.findIndex(s => s.storeId === store.storeId);
     if (idx !== -1) {
       hub[idx] = { ...hub[idx], ...updatedFields };
+      setStorage(STORAGE_KEYS.GLOBAL_HUB, hub);
+    } else if (store.storeName) {
+      hub.unshift(store);
       setStorage(STORAGE_KEYS.GLOBAL_HUB, hub);
     }
     return store;
