@@ -741,7 +741,16 @@ export const POSView = () => {
                 <tbody className="divide-y divide-slate-100">
                   {activeReceipt.items.map((item, idx) => (
                     <tr key={idx}>
-                      <td className="py-1.5 font-medium">{item.name}</td>
+                      <td className="py-1.5 font-medium">
+                        <div>{item.name}</div>
+                        {(item.batchNumber || item.expiryDate || item.imeiNumber) && (
+                          <div className="text-[9px] text-slate-500 font-mono">
+                            {item.batchNumber && <span className="mr-1">Batch: {item.batchNumber}</span>}
+                            {item.expiryDate && <span className="mr-1">Exp: {item.expiryDate}</span>}
+                            {item.imeiNumber && <span>IMEI/SN: {item.imeiNumber}</span>}
+                          </div>
+                        )}
+                      </td>
                       <td className="py-1.5 text-center font-mono">{item.quantity}</td>
                       <td className="py-1.5 text-right font-mono">{store?.currencySymbol}{item.salePrice.toFixed(2)}</td>
                       <td className="py-1.5 text-right font-mono font-semibold">{store?.currencySymbol}{(item.salePrice * item.quantity).toFixed(2)}</td>

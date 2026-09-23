@@ -44,7 +44,10 @@ export const InventoryView = () => {
     reorderThreshold: 10,
     unit: 'Pcs',
     supplier: '',
-    image: ''
+    image: '',
+    batchNumber: '',
+    expiryDate: '',
+    imeiNumber: ''
   });
 
   // Stock In Modal State
@@ -64,7 +67,10 @@ export const InventoryView = () => {
   const categories = ['ALL', ...new Set(products.map(p => p.category))];
 
   const filteredProducts = products.filter(p => {
-    const matchQuery = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchQuery = p.name.toLowerCase().includes(search.toLowerCase()) || 
+                       p.sku.toLowerCase().includes(search.toLowerCase()) ||
+                       (p.batchNumber && p.batchNumber.toLowerCase().includes(search.toLowerCase())) ||
+                       (p.imeiNumber && p.imeiNumber.toLowerCase().includes(search.toLowerCase()));
     const matchCat = categoryFilter === 'ALL' || p.category === categoryFilter;
     return matchQuery && matchCat;
   });
@@ -82,8 +88,11 @@ export const InventoryView = () => {
       stockQuantity: '30',
       reorderThreshold: 10,
       unit: 'Pcs',
-      supplier: 'UK Retail Wholesalers Ltd',
-      image: ''
+      supplier: '',
+      image: '',
+      batchNumber: '',
+      expiryDate: '',
+      imeiNumber: ''
     });
     setIsAddEditOpen(true);
   };
@@ -101,7 +110,10 @@ export const InventoryView = () => {
       reorderThreshold: p.reorderThreshold || 10,
       unit: p.unit || 'Pcs',
       supplier: p.supplier || '',
-      image: p.image || ''
+      image: p.image || '',
+      batchNumber: p.batchNumber || '',
+      expiryDate: p.expiryDate || '',
+      imeiNumber: p.imeiNumber || ''
     });
     setIsAddEditOpen(true);
   };
@@ -136,7 +148,10 @@ export const InventoryView = () => {
       reorderThreshold: Number(prodForm.reorderThreshold),
       unit: prodForm.unit,
       supplier: prodForm.supplier,
-      image: prodForm.image
+      image: prodForm.image,
+      batchNumber: prodForm.batchNumber,
+      expiryDate: prodForm.expiryDate,
+      imeiNumber: prodForm.imeiNumber
     };
 
     handleSaveProduct(productPayload);
@@ -247,7 +262,24 @@ export const InventoryView = () => {
                           )}
                         </div>
                         <div>
-                          <div className="font-bold text-white text-xs">{p.name}</div>
+                          <div className="font-bold text-white text-xs flex items-center gap-1.5 flex-wrap">
+                            <span>{p.name}</span>
+                            {p.expiryDate && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                Exp: {p.expiryDate}
+                              </span>
+                            )}
+                            {p.batchNumber && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                Batch: {p.batchNumber}
+                              </span>
+                            )}
+                            {p.imeiNumber && (
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                IMEI/SN: {p.imeiNumber}
+                              </span>
+                            )}
+                          </div>
                           <div className="text-[10px] text-slate-400 font-mono">SKU: {p.sku} | Barcode: {p.barcode}</div>
                         </div>
                       </div>
@@ -428,6 +460,44 @@ export const InventoryView = () => {
                 onChange={(e) => setProdForm({ ...prodForm, reorderThreshold: e.target.value })}
                 className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500"
               />
+            </div>
+          </div>
+
+          {/* Industry Specific Fields: Pharmacy (Batch, Expiry) & Electronics (IMEI/Serial) */}
+          <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div className="text-[11px] font-bold text-sky-400 uppercase tracking-wide">
+              Industry Special Attributes (Optional)
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-[10px] font-medium text-slate-300 mb-1">Batch / Lot # (Pharmacy)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. BATCH-9021"
+                  value={prodForm.batchNumber}
+                  onChange={(e) => setProdForm({ ...prodForm, batchNumber: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500 font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-medium text-slate-300 mb-1">Expiry Date (Pharmacy)</label>
+                <input
+                  type="date"
+                  value={prodForm.expiryDate}
+                  onChange={(e) => setProdForm({ ...prodForm, expiryDate: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-medium text-slate-300 mb-1">IMEI / Serial # (Mobile)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 86492019..."
+                  value={prodForm.imeiNumber}
+                  onChange={(e) => setProdForm({ ...prodForm, imeiNumber: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500 font-mono"
+                />
+              </div>
             </div>
           </div>
 
