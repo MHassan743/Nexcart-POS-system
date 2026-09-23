@@ -143,55 +143,69 @@ export const CustomersView = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium">
-              {filtered.map(c => (
-                <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="px-4 py-3 font-bold text-white">
-                    {c.name}
-                  </td>
-                  <td className="px-4 py-3 text-slate-400">
-                    {c.phone} | {c.email || 'N/A'}
-                  </td>
-                  <td className="px-4 py-3 font-mono text-emerald-400 font-bold">
-                    {store?.currencySymbol}{(c.totalSpent || 0).toFixed(2)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {c.creditBalance > 0 ? (
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 badge-pulse-red">
-                        {store?.currencySymbol}{c.creditBalance.toFixed(2)} Outstanding
-                      </span>
-                    ) : (
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
-                        {store?.currencySymbol}0.00 (Clear)
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleOpenEdit(c)}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-700 transition-all"
-                        title="Edit Customer Profile & Balance"
-                      >
-                        Edit Profile / Balance
-                      </button>
-
-                      {c.creditBalance > 0 && (
-                        <button
-                          onClick={() => {
-                            setActiveCust(c);
-                            setPayAmount(c.creditBalance.toFixed(2));
-                            setIsPayModalOpen(true);
-                          }}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] shadow-sm flex items-center gap-1"
-                        >
-                          <CreditCard className="w-3.5 h-3.5" />
-                          <span>Collect Payment</span>
-                        </button>
-                      )}
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Users className="w-10 h-10 text-slate-600 stroke-[1.5]" />
+                      <p className="text-xs font-bold text-slate-300">No Customer Accounts Registered</p>
+                      <p className="text-[11px] text-slate-500 max-w-sm">
+                        Click "+ Add New Customer" above to register real customer profiles and track their Khaata debt ledger.
+                      </p>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map(c => (
+                  <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
+                    <td className="px-4 py-3 font-bold text-white">
+                      {c.name}
+                    </td>
+                    <td className="px-4 py-3 text-slate-400">
+                      {c.phone} | {c.email || 'N/A'}
+                    </td>
+                    <td className="px-4 py-3 font-mono text-emerald-400 font-bold">
+                      {store?.currencySymbol}{(c.totalSpent || 0).toFixed(2)}
+                    </td>
+                    <td className="px-4 py-3">
+                      {c.creditBalance > 0 ? (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 badge-pulse-red">
+                          {store?.currencySymbol}{c.creditBalance.toFixed(2)} Outstanding
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                          {store?.currencySymbol}0.00 (Clear)
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenEdit(c)}
+                          className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold border border-slate-700 transition-all"
+                          title="Edit Customer Profile & Balance"
+                        >
+                          Edit Profile / Balance
+                        </button>
+
+                        {c.creditBalance > 0 && (
+                          <button
+                            onClick={() => {
+                              setActiveCust(c);
+                              setPayAmount(c.creditBalance.toFixed(2));
+                              setIsPayModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] shadow-sm flex items-center gap-1"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" />
+                            <span>Collect Payment</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

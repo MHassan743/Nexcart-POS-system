@@ -164,7 +164,7 @@ export const POSView = () => {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col lg:flex-row overflow-hidden bg-slate-950">
+    <div className="h-full min-h-[calc(100vh-6rem)] flex flex-col lg:flex-row overflow-hidden bg-slate-950">
       {/* LEFT SECTION: PRODUCT CATALOG & SEARCH (60-65% width) */}
       <div className="flex-1 flex flex-col border-r border-slate-800/80 p-4 space-y-4 overflow-hidden">
         {/* Search & Barcode Scan Bar */}

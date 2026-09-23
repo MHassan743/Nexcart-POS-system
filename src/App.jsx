@@ -71,8 +71,8 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
-      {/* Top Sticky Header Navbar */}
+    <div className="h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white overflow-hidden">
+      {/* Top Header Navbar */}
       <Navbar 
         onOpenPinModal={() => {
           setSwitchPinInput('');
@@ -82,17 +82,18 @@ const MainLayout = () => {
         onNavigate={(tab) => setActiveTab(tab)}
       />
 
-      {/* Main Content Area with Sidebar */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Content Area with Fixed Sidebar */}
+      <div className="flex-1 flex overflow-hidden min-h-0">
         <Sidebar activeTab={activeTab} onSelectTab={(tab) => setActiveTab(tab)} />
 
-        <main className="flex-1 overflow-y-auto bg-slate-950/80">
-          {renderView()}
+        <main className="flex-1 overflow-y-auto bg-slate-950/80 flex flex-col justify-between">
+          <div className="flex-1">
+            {renderView()}
+          </div>
+          {/* Footer Branding Banner */}
+          <NexcartFooterBanner />
         </main>
       </div>
-
-      {/* Footer Branding Banner */}
-      <NexcartFooterBanner />
 
       {/* Quick Switch Cashier PIN Modal */}
       <Modal

@@ -38,8 +38,18 @@ const setStorage = (key, data) => {
 export const DB = {
   // Initialize Database with Defaults if Empty
   init: () => {
+    // Schema v2.6: Clear dummy seed data from older sessions
+    const SCHEMA_VERSION = '2.6';
+    const storedVersion = localStorage.getItem('nexcart_schema_version');
+    if (storedVersion !== SCHEMA_VERSION) {
+      // Remove stale global hub dummy records and walk-in customer
+      localStorage.removeItem(STORAGE_KEYS.GLOBAL_HUB);
+      localStorage.removeItem(STORAGE_KEYS.CUSTOMERS);
+      localStorage.setItem('nexcart_schema_version', SCHEMA_VERSION);
+    }
+
     if (!localStorage.getItem(STORAGE_KEYS.GLOBAL_HUB)) {
-      setStorage(STORAGE_KEYS.GLOBAL_HUB, INITIAL_NEXCART_SERVERLESS_HUB);
+      setStorage(STORAGE_KEYS.GLOBAL_HUB, INITIAL_NEXCART_SERVERLESS_HUB); // now empty []
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.CURRENT_STORE)) {

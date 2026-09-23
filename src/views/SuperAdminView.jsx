@@ -79,48 +79,62 @@ export const SuperAdminView = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium">
-              {globalHub.map(s => (
-                <tr key={s.storeId} className={`hover:bg-slate-800/40 transition-colors ${s.storeId === store?.storeId ? 'bg-sky-500/10' : ''}`}>
-                  <td className="px-4 py-3">
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <span>{s.storeName}</span>
-                      {s.storeId === store?.storeId && (
-                        <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[9px] font-bold">This Store</span>
-                      )}
+              {globalHub.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Globe className="w-10 h-10 text-slate-600 stroke-[1.5]" />
+                      <p className="text-xs font-bold text-slate-300">No Remote Client Stores Registered</p>
+                      <p className="text-[11px] text-slate-500 max-w-sm">
+                        All client stores registered on Nexcart Cloud master telemetry hub will appear here in real-time.
+                      </p>
                     </div>
-                    <div className="text-[10px] text-slate-400 font-mono">{s.storeId}</div>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-sky-300 uppercase border border-slate-700">
-                      {s.businessType}
-                    </span>
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <div className="text-slate-200">{s.ownerName}</div>
-                    <div className="text-[10px] text-slate-400">{s.ownerEmail}</div>
-                  </td>
-
-                  <td className="px-4 py-3 font-mono text-slate-300">
-                    {s.currencySymbol} ({s.currency}) | {s.taxRate}%
-                  </td>
-
-                  <td className="px-4 py-3 font-mono text-slate-400 text-[11px]">
-                    {new Date(s.registeredAt).toLocaleDateString()}
-                  </td>
-
-                  <td className="px-4 py-3 font-bold text-indigo-400 text-[11px]">
-                    {s.plan || 'NEXCART PRO'}
-                  </td>
-
-                  <td className="px-4 py-3">
-                    <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                      ACTIVE
-                    </span>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                globalHub.map(s => (
+                  <tr key={s.storeId} className={`hover:bg-slate-800/40 transition-colors ${s.storeId === store?.storeId ? 'bg-sky-500/10' : ''}`}>
+                    <td className="px-4 py-3">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>{s.storeName}</span>
+                        {s.storeId === store?.storeId && (
+                          <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[9px] font-bold">This Store</span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono">{s.storeId}</div>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-sky-300 uppercase border border-slate-700">
+                        {s.businessType}
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <div className="text-slate-200">{s.ownerName}</div>
+                      <div className="text-[10px] text-slate-400">{s.ownerEmail}</div>
+                    </td>
+
+                    <td className="px-4 py-3 font-mono text-slate-300">
+                      {s.currencySymbol} ({s.currency}) | {s.taxRate}%
+                    </td>
+
+                    <td className="px-4 py-3 font-mono text-slate-400 text-[11px]">
+                      {new Date(s.registeredAt).toLocaleDateString()}
+                    </td>
+
+                    <td className="px-4 py-3 font-bold text-indigo-400 text-[11px]">
+                      {s.plan || 'NEXCART PRO'}
+                    </td>
+
+                    <td className="px-4 py-3">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        ACTIVE
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

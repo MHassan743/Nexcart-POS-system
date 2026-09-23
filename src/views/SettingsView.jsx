@@ -67,7 +67,7 @@ export const SettingsView = () => {
         <div>
           <h1 className="font-heading font-extrabold text-2xl text-white tracking-wide flex items-center gap-2">
             <Settings className="w-7 h-7 text-sky-400" />
-            <span>Store Configuration & Industry Presets</span>
+            <span>Store Configuration & Settings</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
             Customize store identity, tax rates, currency formatting, and staff PIN credentials.
@@ -80,32 +80,6 @@ export const SettingsView = () => {
           {savedMsg}
         </div>
       )}
-
-      {/* Business Preset Selector Cards */}
-      <div className="space-y-3">
-        <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-sky-400" />
-          <span>Switch Retail Industry Preset</span>
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-          {Object.values(BUSINESS_TYPES).map(b => (
-            <button
-              key={b.id}
-              onClick={() => handleSwitchPreset(b.id)}
-              className={`p-3 rounded-2xl border text-left transition-all flex flex-col justify-between ${
-                form.businessType === b.id
-                  ? 'bg-sky-600/20 border-sky-400 text-white shadow-glow-sky'
-                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-              }`}
-            >
-              <div className="font-bold text-xs">{b.name}</div>
-              <div className="text-[10px] text-slate-500 mt-2">
-                Default: {b.currencySymbol} ({b.defaultTaxRate}% Tax)
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Settings Form */}
       <div className="glass-panel rounded-2xl p-6 border border-slate-800 shadow-2xl">
@@ -133,7 +107,7 @@ export const SettingsView = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-medium text-slate-300 mb-1">Currency Code</label>
               <select
@@ -161,16 +135,6 @@ export const SettingsView = () => {
                 value={form.taxRate}
                 onChange={(e) => setForm({ ...form, taxRate: e.target.value })}
                 className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Current Active Preset</label>
-              <input
-                type="text"
-                disabled
-                value={form.businessType.toUpperCase()}
-                className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-sky-400 font-bold"
               />
             </div>
           </div>

@@ -79,7 +79,7 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
   ];
 
   return (
-    <aside className="w-64 bg-slate-900/95 border-r border-slate-800 flex flex-col h-[calc(100vh-4rem)] sticky top-16 z-20 shrink-0 select-none">
+    <aside className="w-64 bg-slate-900/95 border-r border-slate-800 flex flex-col h-full z-20 shrink-0 select-none">
       {/* Navigation Links */}
       <div className="p-3 space-y-1 overflow-y-auto flex-1">
         <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">

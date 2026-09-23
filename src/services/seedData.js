@@ -89,69 +89,7 @@ export const INITIAL_EMPLOYEES = [
   }
 ];
 
-export const INITIAL_CUSTOMERS = [
-  {
-    id: 'cust-001',
-    name: 'Walk-in Customer',
-    phone: 'N/A',
-    email: 'walkin@store.com',
-    creditBalance: 0,
-    totalSpent: 0,
-    loyaltyPoints: 0
-  }
-];
+export const INITIAL_CUSTOMERS = [];
 
 // Master Nexcart Agency Central Serverless Registry (All clients registered on Nexcart)
-export const INITIAL_NEXCART_SERVERLESS_HUB = [
-  {
-    storeId: 'store-uk-001',
-    storeName: 'Royal Crockery & Home Goods',
-    businessType: 'crockery',
-    ownerName: 'Alexander Wright',
-    ownerEmail: 'admin@nexcart.com',
-    phone: '+44 20 7946 0912',
-    address: '27 Huxley Gardens, London NW10 7EB, UK',
-    currency: 'GBP',
-    currencySymbol: '£',
-    taxRate: 20,
-    registeredAt: '2026-01-15T10:30:00.000Z',
-    plan: 'ENTERPRISE PRO',
-    status: 'ACTIVE',
-    totalTransactionsCount: 1420,
-    totalSalesVolume: 94850.00
-  },
-  {
-    storeId: 'store-us-002',
-    storeName: 'Metro Market & Groceries',
-    businessType: 'grocery',
-    ownerName: 'David Miller',
-    ownerEmail: 'david@metromarket.com',
-    phone: '+1 212 555 0198',
-    address: '450 Fifth Avenue, New York, NY 10018',
-    currency: 'USD',
-    currencySymbol: '$',
-    taxRate: 8.875,
-    registeredAt: '2026-02-01T14:15:00.000Z',
-    plan: 'RETAIL STANDARD',
-    status: 'ACTIVE',
-    totalTransactionsCount: 3890,
-    totalSalesVolume: 154200.00
-  },
-  {
-    storeId: 'store-pk-003',
-    storeName: 'Apex Tech & Mobile Hub',
-    businessType: 'electronics',
-    ownerName: 'Kamran Malik',
-    ownerEmail: 'malik@apextech.pk',
-    phone: '+92 300 1234567',
-    address: 'Hafeez Center, Gulberg III, Lahore, Pakistan',
-    currency: 'PKR',
-    currencySymbol: '₨',
-    taxRate: 17,
-    registeredAt: '2026-03-10T09:00:00.000Z',
-    plan: 'STARTER',
-    status: 'ACTIVE',
-    totalTransactionsCount: 520,
-    totalSalesVolume: 1850000.00
-  }
-];
+export const INITIAL_NEXCART_SERVERLESS_HUB = [];
