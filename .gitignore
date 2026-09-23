@@ -5,7 +5,9 @@ node_modules
 # Production build outputs
 dist
 dist-ssr
+release
 *.local
+*.exe
 
 # Logs
 npm-debug.log*

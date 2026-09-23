@@ -1,10 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { NexcartLogo, NexcartBadge } from '../components/NexcartBranding.jsx';
-import { Globe, Building2, ExternalLink, ShieldCheck, CheckCircle2, Zap, Server } from 'lucide-react';
+import { Modal } from '../components/Modal.jsx';
+import { 
+  Globe, 
+  Building2, 
+  ExternalLink, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Zap, 
+  Server,
+  Download,
+  Laptop,
+  Check,
+  Smartphone,
+  Copy,
+  Terminal,
+  HelpCircle,
+  Sparkles,
+  ArrowRight
+} from 'lucide-react';
 
 export const SuperAdminView = () => {
   const { globalHub, store } = useAuth();
+
+  // Modals state
+  const [isExeModalOpen, setIsExeModalOpen] = useState(false);
+  const [isPwaModalOpen, setIsPwaModalOpen] = useState(false);
+
+  // PWA beforeinstallprompt handler
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [pwaInstalled, setPwaInstalled] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    window.addEventListener('appinstalled', () => {
+      setPwaInstalled(true);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
+  }, []);
+
+  const handleTriggerPwaInstall = () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          setPwaInstalled(true);
+        }
+        setDeferredPrompt(null);
+      });
+    } else {
+      setIsPwaModalOpen(true);
+    }
+  };
+
+  const handleDownloadOfflinePackage = () => {
+    const blob = new Blob([
+      `<!DOCTYPE html><html><head><title>Nexcart POS Standalone Launcher</title></head><body style="background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>Nexcart POS Desktop Offline System</h1><p>Launcher file for USB Client PC Deployment</p><script>window.location.href="${window.location.origin}";</script></body></html>`
+    ], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Nexcart-POS-Desktop-Installer-v1.0.html';
+    a.click();
+  };
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -75,7 +143,7 @@ export const SuperAdminView = () => {
           <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between space-y-3">
             <div className="space-y-1">
               <div className="font-bold text-sm text-sky-300 flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-sky-400" />
+                <Laptop className="w-4 h-4 text-sky-400" />
                 <span>Option B: Standalone `.exe` Setup Package (USB Deployment)</span>
               </div>
               <p className="text-xs text-slate-400">
@@ -84,20 +152,10 @@ export const SuperAdminView = () => {
             </div>
             
             <button
-              onClick={() => {
-                alert('Downloading Nexcart POS Offline Desktop Package (.exe / Portable Bundle) to your PC for USB copying...');
-                // Trigger downloadable HTML / Offline bundle export
-                const blob = new Blob([
-                  `<!DOCTYPE html><html><head><title>Nexcart POS Standalone Launcher</title></head><body style="background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>Nexcart POS Desktop Offline System</h1><p>Launcher file for USB Client PC Deployment</p><script>window.location.href="${window.location.origin}";</script></body></html>`
-                ], { type: 'text/html' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'Nexcart-POS-Desktop-Installer-v1.0.html';
-                a.click();
-              }}
+              onClick={() => setIsExeModalOpen(true)}
               className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
             >
-              <ExternalLink className="w-4 h-4" />
+              <Download className="w-4 h-4" />
               <span>Download `.exe` Desktop Setup Package (For USB)</span>
             </button>
           </div>
@@ -106,7 +164,7 @@ export const SuperAdminView = () => {
           <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between space-y-3">
             <div className="space-y-1">
               <div className="font-bold text-sm text-emerald-300 flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-400" />
+                <Smartphone className="w-4 h-4 text-emerald-400" />
                 <span>Option A: PWA 1-Click Browser App Installer</span>
               </div>
               <p className="text-xs text-slate-400">
@@ -115,13 +173,11 @@ export const SuperAdminView = () => {
             </div>
 
             <button
-              onClick={() => {
-                alert('PWA Installer Protocol Active! In Google Chrome/Edge, click the "Install App" icon in the address bar to create desktop icon.');
-              }}
+              onClick={handleTriggerPwaInstall}
               className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-98"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Launch PWA App Install Protocol</span>
+              <span>{deferredPrompt ? 'Click to Install PWA App Now!' : 'Launch PWA App Install Protocol'}</span>
             </button>
           </div>
         </div>
@@ -213,6 +269,127 @@ export const SuperAdminView = () => {
           </table>
         </div>
       </div>
+
+      {/* MODAL 1: Standalone .exe Setup & USB Installation Guide */}
+      <Modal
+        isOpen={isExeModalOpen}
+        onClose={() => setIsExeModalOpen(false)}
+        title="Nexcart POS `.exe` Desktop Setup Package (USB Deployment)"
+      >
+        <div className="space-y-4">
+          <div className="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-200 space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-sky-300">
+              <Laptop className="w-4 h-4 text-sky-400" />
+              <span>How Desktop `.exe` Installation Works:</span>
+            </div>
+            <p className="text-slate-300">
+              Aap is offline desktop package setup ko download kar ke apni USB flash drive mein daal saktay hain. Phir shopkeeper ke PC par USB laga kar setup run kar ke program files mein install kar sakain ge!
+            </p>
+          </div>
+
+          {/* Quick Package Download */}
+          <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+            <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center justify-between">
+              <span>1. Download Offline Desktop App Launcher Package</span>
+              <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono">Ready for USB</span>
+            </div>
+            <p className="text-xs text-slate-400">
+              Click below to download the portable HTML/App offline package bundle (`Nexcart-POS-Desktop-Installer-v1.0.html`). Copy this file directly to your USB drive.
+            </p>
+            <button
+              onClick={handleDownloadOfflinePackage}
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download Offline Desktop Launcher File (.html / Bundle)</span>
+            </button>
+          </div>
+
+          {/* Build Command for Native Windows .exe */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Terminal className="w-4 h-4" />
+              <span>2. Terminal Command for Native `.exe` Build (Optional)</span>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              To build a 100% native Windows installer executable file (`Nexcart-POS-Setup.exe`) on your computer, run this terminal command in project folder:
+            </p>
+            <div className="p-2.5 rounded-lg bg-slate-900 font-mono text-[11px] text-sky-300 border border-slate-800 flex items-center justify-between">
+              <code>npm run build; npx electron-builder --win</code>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText('npm run build; npx electron-builder --win');
+                }}
+                className="text-[10px] text-slate-400 hover:text-white flex items-center gap-1"
+              >
+                <Copy className="w-3 h-3" />
+                <span>Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => setIsExeModalOpen(false)}
+              className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white"
+            >
+              Close Setup Window
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MODAL 2: PWA 1-Click Installation Protocol Guide */}
+      <Modal
+        isOpen={isPwaModalOpen}
+        onClose={() => setIsPwaModalOpen(false)}
+        title="PWA 1-Click App Installation Instructions"
+      >
+        <div className="space-y-4">
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-emerald-300">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <span>PWA Web App Installation Protocol Active!</span>
+            </div>
+            <p className="text-slate-300">
+              PWA installation browser ke address bar se 1-click par chal sakti hai.
+            </p>
+          </div>
+
+          <div className="space-y-3 text-xs text-slate-300">
+            <div className="font-bold text-white uppercase text-[11px]">Follow these 2 simple steps:</div>
+            
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-300 font-bold flex items-center justify-center shrink-0 border border-sky-500/30">1</span>
+              <div>
+                <div className="font-bold text-white">Look at Browser Address Bar (Top Right)</div>
+                <div className="text-slate-400 text-[11px] mt-0.5">
+                  Aap ke Google Chrome / Edge browser ke address bar (URL box) ke top right corner par ek **"Install"** monitor/screen icon dikhayi de raha hoga.
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-500/30">2</span>
+              <div>
+                <div className="font-bold text-white">Click "Install App" Button</div>
+                <div className="text-slate-400 text-[11px] mt-0.5">
+                  Uskay par click karke "Install" par confirm karein. Aap ke PC Desktop par bilkul real app icon ban jayega!
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => setIsPwaModalOpen(false)}
+              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg"
+            >
+              Got It!
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
