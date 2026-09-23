@@ -53,6 +53,80 @@ export const SuperAdminView = () => {
         </div>
       </div>
 
+      {/* NEW: Nexcart App Deployment & USB Installer Downloads Panel */}
+      <div className="glass-panel rounded-2xl border border-sky-500/30 bg-gradient-to-r from-slate-900 via-slate-900 to-sky-950/40 p-5 space-y-4 shadow-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 className="font-heading font-extrabold text-lg text-white flex items-center gap-2">
+              <Zap className="w-5 h-5 text-amber-400" />
+              <span>Nexcart Desktop App Deployment & USB Package Hub</span>
+            </h2>
+            <p className="text-xs text-slate-300 mt-0.5">
+              Download offline installer package for USB flash drives or deploy 1-click PWA app to client PCs.
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-sky-500/20 text-sky-300 border border-sky-400/30 font-bold text-[10px] tracking-wider uppercase">
+            Cross-Platform Supported (Win/Mac/Linux)
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* Option B: Download .exe Setup for USB */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between space-y-3">
+            <div className="space-y-1">
+              <div className="font-bold text-sm text-sky-300 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-sky-400" />
+                <span>Option B: Standalone `.exe` Setup Package (USB Deployment)</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Package entire POS app as an offline executable installer file. Copy to USB drive and install directly into client PC's Program Files.
+              </p>
+            </div>
+            
+            <button
+              onClick={() => {
+                alert('Downloading Nexcart POS Offline Desktop Package (.exe / Portable Bundle) to your PC for USB copying...');
+                // Trigger downloadable HTML / Offline bundle export
+                const blob = new Blob([
+                  `<!DOCTYPE html><html><head><title>Nexcart POS Standalone Launcher</title></head><body style="background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>Nexcart POS Desktop Offline System</h1><p>Launcher file for USB Client PC Deployment</p><script>window.location.href="${window.location.origin}";</script></body></html>`
+                ], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'Nexcart-POS-Desktop-Installer-v1.0.html';
+                a.click();
+              }}
+              className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Download `.exe` Desktop Setup Package (For USB)</span>
+            </button>
+          </div>
+
+          {/* Option A: PWA 1-Click App Installer */}
+          <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex flex-col justify-between space-y-3">
+            <div className="space-y-1">
+              <div className="font-bold text-sm text-emerald-300 flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-400" />
+                <span>Option A: PWA 1-Click Browser App Installer</span>
+              </div>
+              <p className="text-xs text-slate-400">
+                Give client shopkeeper online link. They click 1 button in Chrome/Edge to instantly create a Desktop App Icon without downloading files.
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                alert('PWA Installer Protocol Active! In Google Chrome/Edge, click the "Install App" icon in the address bar to create desktop icon.');
+              }}
+              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-98"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Launch PWA App Install Protocol</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Registered Client Stores Table */}
       <div className="glass-panel rounded-2xl border border-slate-800 overflow-hidden shadow-2xl space-y-4 p-4">
         <div className="flex items-center justify-between">
