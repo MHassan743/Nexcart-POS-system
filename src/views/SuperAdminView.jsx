@@ -78,27 +78,13 @@ export const SuperAdminView = () => {
     }
   };
 
-  const handleDownloadExeSetup = async () => {
-    try {
-      const response = await fetch('/Nexcart-POS-Setup-v1.0.exe');
-      if (!response.ok) throw new Error('Network response was not ok');
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = 'Nexcart-POS-Setup-v1.0.exe';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 10000);
-    } catch (err) {
-      const a = document.createElement('a');
-      a.href = '/Nexcart-POS-Setup-v1.0.exe';
-      a.download = 'Nexcart-POS-Setup-v1.0.exe';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
+  const handleDownloadExeSetup = () => {
+    const link = document.createElement('a');
+    link.href = '/Nexcart-POS-Setup-v1.0.exe';
+    link.download = 'Nexcart-POS-Setup-v1.0.exe';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleDownloadWindowsSetup = () => {
@@ -508,51 +494,46 @@ export const SuperAdminView = () => {
         </div>
       </Modal>
 
-      {/* MODAL 2: PWA 1-Click Installation Protocol Guide */}
+      {/* MODAL 2: PWA 1-Click Installation Guide */}
       <Modal
         isOpen={isPwaModalOpen}
         onClose={() => setIsPwaModalOpen(false)}
-        title="PWA 1-Click App Installation Instructions"
+        title="Nexcart PWA 1-Click Desktop App Setup"
+        maxWidth="max-w-md"
       >
         <div className="space-y-4">
-          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs text-emerald-200 space-y-1">
-            <div className="font-bold flex items-center gap-1.5 text-emerald-300">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span>PWA Web App Installation Protocol Active!</span>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-950/60 via-slate-900 to-sky-950/60 border border-emerald-500/30 text-center space-y-2">
+            <div className="inline-flex p-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 shadow-lg">
+              <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
-            <p className="text-slate-300">
-              PWA installation browser ke address bar se 1-click par chal sakti hai.
+            <h3 className="font-heading font-extrabold text-sm text-white uppercase tracking-wider">
+              Instant Desktop App Installation Ready
+            </h3>
+            <p className="text-xs text-slate-300">
+              Nexcart POS can be installed directly onto your PC desktop in 1 click without downloading binary files.
             </p>
           </div>
 
-          <div className="space-y-3 text-xs text-slate-300">
-            <div className="font-bold text-white uppercase text-[11px]">Follow these 2 simple steps:</div>
-            
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-sky-500/20 text-sky-300 font-bold flex items-center justify-center shrink-0 border border-sky-500/30">1</span>
-              <div>
-                <div className="font-bold text-white">Look at Browser Address Bar (Top Right)</div>
-                <div className="text-slate-400 text-[11px] mt-0.5">
-                  Aap ke Google Chrome / Edge browser ke address bar (URL box) ke top right corner par ek **"Install"** monitor/screen icon dikhayi de raha hoga.
-                </div>
-              </div>
+          <div className="space-y-2 text-xs text-slate-300">
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+              <span className="font-semibold text-slate-200">Browser PWA Engine Status:</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                ACTIVE & READY
+              </span>
             </div>
 
-            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
-              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-500/30">2</span>
-              <div>
-                <div className="font-bold text-white">Click "Install App" Button</div>
-                <div className="text-slate-400 text-[11px] mt-0.5">
-                  Uskay par click karke "Install" par confirm karein. Aap ke PC Desktop par bilkul real app icon ban jayega!
-                </div>
-              </div>
+            <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+              <span className="font-semibold text-slate-200">Installation Mode:</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                1-CLICK AUTOMATIC
+              </span>
             </div>
           </div>
 
           <div className="flex justify-end pt-2">
             <button
               onClick={() => setIsPwaModalOpen(false)}
-              className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg"
+              className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg transition-all active:scale-95"
             >
               Got It!
             </button>
@@ -568,30 +549,32 @@ export const SuperAdminView = () => {
         maxWidth="max-w-md"
       >
         <div className="space-y-4">
-          <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
-            <div className="inline-flex p-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 shadow-lg">
-              <Zap className="w-8 h-8 animate-pulse" />
+          <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-950/80 via-slate-900 to-sky-950/80 border border-emerald-500/40 text-center space-y-3 shadow-2xl">
+            <div className="inline-flex p-3.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 shadow-glow-emerald">
+              <Zap className="w-9 h-9 animate-pulse text-emerald-300" />
             </div>
-            <h3 className="font-heading font-extrabold text-base text-white">
-              Ready to Install Nexcart POS Desktop App?
-            </h3>
-            <p className="text-xs text-slate-300">
-              Clicking confirm will launch the browser PWA protocol to create an instant Desktop App icon on your client PC without downloading installer files.
-            </p>
+            <div className="space-y-1">
+              <h3 className="font-heading font-extrabold text-lg text-white">
+                Install Nexcart POS Desktop App?
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Clicking confirm will launch the browser PWA protocol to create an instant 1-click Desktop App icon on your client PC.
+              </p>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-2">
             <button
               onClick={() => setIsPwaConfirmOpen(false)}
-              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors"
+              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirmPwaInstall}
-              className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95"
+              className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-xs font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95 border border-emerald-400/30"
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-200" />
               <span>Confirm & Install Now</span>
             </button>
           </div>
