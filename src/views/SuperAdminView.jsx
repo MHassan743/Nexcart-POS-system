@@ -79,8 +79,10 @@ export const SuperAdminView = () => {
   };
 
   const handleDownloadExeSetup = () => {
+    // GitHub Releases URL - Vercel static file limit bypass
+    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/download/v1.0.0/Nexcart-POS-Setup-v1.0.exe';
     const link = document.createElement('a');
-    link.href = '/Nexcart-POS-Setup-v1.0.exe';
+    link.href = GITHUB_RELEASE_URL;
     link.download = 'Nexcart-POS-Setup-v1.0.exe';
     document.body.appendChild(link);
     link.click();
