@@ -5,11 +5,11 @@
   "description": "Universal Anti-Leakage POS System for Retail Businesses",
   "author": "Nexcart Agency",
   "type": "module",
-  "main": "electron/main.js",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:exe": "vite build; npx electron-packager . \"Nexcart POS System\" --platform=win32 --arch=x64 --out=release --overwrite",
+    "build:exe": "npm run build && npx electron-packager . \"Nexcart POS System\" --platform=win32 --arch=x64 --out=release --overwrite",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
