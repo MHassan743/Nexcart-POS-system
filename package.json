@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:exe": "npm run build && npx electron-packager . \"Nexcart POS System\" --platform=win32 --arch=x64 --out=release --overwrite",
+    "build:exe": "npm run build && electron-builder --win nsis",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
@@ -24,7 +24,22 @@
       "electron/**/*"
     ],
     "win": {
-      "target": "dir"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nexcart POS System",
+      "artifactName": "Nexcart-POS-Setup-v1.0.exe"
     }
   },
   "dependencies": {

@@ -78,23 +78,13 @@ export const SuperAdminView = () => {
     }
   };
 
-  const handleDownloadExeSetup = async () => {
-    try {
-      const res = await fetch('/Nexcart-POS-Setup-v1.0.exe', { method: 'HEAD' });
-      if (res.ok) {
-        const link = document.createElement('a');
-        link.href = '/Nexcart-POS-Setup-v1.0.exe';
-        link.download = 'Nexcart-POS-Setup-v1.0.exe';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        return;
-      }
-    } catch (e) {
-      // proceed to fallback
-    }
-    // Fallback for Vercel/GitHub web deployments where >100MB static files are excluded by cloud hosts
-    handleDownloadWindowsSetup();
+  const handleDownloadExeSetup = () => {
+    const link = document.createElement('a');
+    link.href = '/Nexcart-POS-Setup-v1.0.exe';
+    link.download = 'Nexcart-POS-Setup-v1.0.exe';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleDownloadWindowsSetup = () => {
