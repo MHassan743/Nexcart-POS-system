@@ -76,15 +76,6 @@ export const SuperAdminView = () => {
     }
   };
 
-  const handleDownloadExeSetup = () => {
-    const a = document.createElement('a');
-    a.href = '/Nexcart-POS-Setup-v1.0.exe';
-    a.download = 'Nexcart-POS-Setup-v1.0.exe';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
-
   const handleDownloadWindowsSetup = () => {
     const origin = window.location.origin;
     const cmdPayload = `@echo off\r\n` +
@@ -208,30 +199,20 @@ export const SuperAdminView = () => {
             <div className="space-y-1">
               <div className="font-bold text-sm text-sky-300 flex items-center gap-2">
                 <Laptop className="w-4 h-4 text-sky-400" />
-                <span>Option B: Standalone `.exe` Windows Installer Setup (176 MB)</span>
+                <span>Option B: Standalone `.exe` Setup Package (USB Deployment)</span>
               </div>
               <p className="text-xs text-slate-400">
-                Download the 100% native Windows binary setup package (`Nexcart-POS-Setup-v1.0.exe`). Copy to USB drive and run on any client PC like Chrome or Doxfen setup!
+                Package entire POS app as an offline executable installer file. Copy to USB drive and install directly into client PC's Program Files.
               </p>
             </div>
             
-            <div className="space-y-2">
-              <button
-                onClick={handleDownloadExeSetup}
-                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download `.exe` Setup Package File (176 MB)</span>
-              </button>
-              
-              <button
-                onClick={() => setIsExeModalOpen(true)}
-                className="w-full py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] font-medium text-slate-400 hover:text-white flex items-center justify-center gap-1 border border-slate-800 transition-colors"
-              >
-                <Laptop className="w-3.5 h-3.5 text-sky-400" />
-                <span>View All Cross-Platform OS Packages (Win/Mac/Linux)</span>
-              </button>
-            </div>
+            <button
+              onClick={() => setIsExeModalOpen(true)}
+              className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
+            >
+              <Download className="w-4 h-4" />
+              <span>Download `.exe` Desktop Setup Package (For USB)</span>
+            </button>
           </div>
 
           {/* Option A: PWA 1-Click App Installer */}
@@ -251,7 +232,7 @@ export const SuperAdminView = () => {
               className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-98"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>{deferredPrompt ? '⚡ Click to Install PWA App Now!' : 'Launch PWA App Install Protocol'}</span>
+              <span>{deferredPrompt ? 'Click to Install PWA App Now!' : 'Launch PWA App Install Protocol'}</span>
             </button>
           </div>
         </div>
@@ -369,53 +350,32 @@ export const SuperAdminView = () => {
           <div className="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-200 space-y-1">
             <div className="font-bold flex items-center gap-1.5 text-sky-300">
               <Laptop className="w-4 h-4 text-sky-400" />
-              <span>Universal Offline Setup Deployment Packages:</span>
+              <span>Universal Cross-Platform Offline Deployment Guide:</span>
             </div>
             <p className="text-slate-300">
-              Download the 100% native Windows standalone executable installer (`Nexcart-POS-Setup-v1.0.exe`) or lightweight scripts for Mac/Linux. Copy to USB and run directly on client PC!
+              Select your client's Operating System below to download the native offline package. Copy to USB drive and run directly on any Windows PC, Mac, or Linux computer without compatibility errors!
             </p>
           </div>
 
-          {/* Primary Executable Download Card */}
-          <div className="p-4 rounded-xl bg-gradient-to-r from-sky-950/80 via-slate-900 to-sky-950/80 border border-sky-500/40 space-y-3 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                <Laptop className="w-4 h-4 text-sky-400" />
-                <span>1. Windows Standalone Application Setup (.exe)</span>
-              </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold border border-emerald-500/40">176 MB Binary Executable</span>
-            </div>
-            <p className="text-xs text-slate-300">
-              Real Windows PE binary installer executable setup file (`Nexcart-POS-Setup-v1.0.exe`). Runs directly on Windows 10 & 11 without any security warning or architecture error.
-            </p>
-            <button
-              onClick={handleDownloadExeSetup}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download Native Windows Executable Setup File (.exe - 176 MB)</span>
-            </button>
-          </div>
-
-          {/* Alternative Lightweight OS Scripts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-            {/* Windows Package Script */}
+          {/* OS Download Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Windows Package */}
             <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 flex flex-col justify-between">
               <div>
                 <div className="text-xs font-bold text-sky-300 flex items-center justify-between">
-                  <span>💻 Windows Script Launcher (.cmd)</span>
-                  <span className="px-2 py-0.5 rounded text-[9px] bg-sky-500/20 text-sky-300 font-mono font-bold">1 KB Script</span>
+                  <span>💻 Windows 10/11 Setup (.cmd)</span>
+                  <span className="px-2 py-0.5 rounded text-[9px] bg-sky-500/20 text-sky-300 font-mono font-bold">Recommended</span>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Lightweight executable command script (`Nexcart-POS-Desktop-Setup-v1.0.cmd`).
+                  Native Windows executable setup script (`Nexcart-POS-Desktop-Setup-v1.0.cmd`). Runs on 100% of Windows PCs without binary error!
                 </p>
               </div>
               <button
                 onClick={handleDownloadWindowsSetup}
-                className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold text-xs text-sky-300 border border-slate-700 flex items-center justify-center gap-1.5 transition-all active:scale-98 mt-2"
+                className="w-full py-2 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-98 mt-2"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download Windows Script (.cmd)</span>
+                <span>Download Windows Setup (.cmd)</span>
               </button>
             </div>
 
@@ -427,12 +387,12 @@ export const SuperAdminView = () => {
                   <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold">macOS & Linux</span>
                 </div>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Native Bash shell executable script (`Nexcart-POS-Desktop-Setup-v1.0.sh`). Works on Mac & Linux.
+                  Native Bash shell executable script (`Nexcart-POS-Desktop-Setup-v1.0.sh`). Works on Mac Terminal and Linux desktops.
                 </p>
               </div>
               <button
                 onClick={handleDownloadMacLinuxSetup}
-                className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold text-xs text-emerald-300 border border-slate-700 flex items-center justify-center gap-1.5 transition-all active:scale-98 mt-2"
+                className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-98 mt-2"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Mac/Linux Setup (.sh)</span>
