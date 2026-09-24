@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Sparkles,
   ArrowRight,
+  RefreshCw,
   Phone,
   MapPin,
   Mail,
@@ -27,7 +28,22 @@ import {
 } from 'lucide-react';
 
 export const SuperAdminView = () => {
-  const { globalHub, store } = useAuth();
+  const { globalHub, store, refetchGlobalHub } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (refetchGlobalHub) {
+      refetchGlobalHub();
+    }
+  }, []);
+
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    if (refetchGlobalHub) {
+      await refetchGlobalHub();
+    }
+    setTimeout(() => setIsRefreshing(false), 600);
+  };
 
   // Modals state
   const [isExeModalOpen, setIsExeModalOpen] = useState(false);
@@ -268,9 +284,20 @@ export const SuperAdminView = () => {
             <Building2 className="w-4 h-4 text-sky-400" />
             <span>Nexcart Registered Retailers & Shops Master Directory</span>
           </h3>
-          <span className="text-[11px] text-slate-400 font-mono">
-            Updated: Real-time Serverless Sync
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="px-2.5 py-1 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 font-semibold text-[11px] flex items-center gap-1.5 transition-all active:scale-95 disabled:opacity-50"
+              title="Fetch latest stores live from MongoDB Atlas cloud"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-sky-400' : ''}`} />
+              <span>{isRefreshing ? 'Syncing Cloud...' : 'Refresh Cloud Hub'}</span>
+            </button>
+            <span className="text-[11px] text-slate-400 font-mono">
+              Updated: Real-time Cloud Sync
+            </span>
+          </div>
         </div>
 
         <div className="overflow-x-auto">

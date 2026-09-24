@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DB } from '../services/db.js';
+import { syncStoreToCloud, pingStoreOnline, fetchCloudHub } from '../services/cloudSync.js';
 
 const AuthContext = createContext();
 
@@ -9,16 +10,33 @@ export const AuthProvider = ({ children }) => {
   const [globalHub, setGlobalHub] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Helper to sync local stores & MongoDB stores into unified globalHub
+  const refreshGlobalHub = async () => {
+    const localHub = DB.getGlobalHub();
+    const cloudStores = await fetchCloudHub();
+
+    if (cloudStores && cloudStores.length > 0) {
+      // Merge cloudStores with localStores (preferring cloud data for duplicates)
+      const storeMap = new Map();
+      localHub.forEach(s => storeMap.set(s.storeId, s));
+      cloudStores.forEach(s => storeMap.set(s.storeId, s));
+      setGlobalHub(Array.from(storeMap.values()));
+    } else {
+      setGlobalHub(localHub);
+    }
+  };
+
   useEffect(() => {
     DB.init();
     const activeUser = DB.getActiveUser();
     const currentStore = DB.getStore();
-    const hub = DB.getGlobalHub();
 
     setUser(activeUser);
     setStore(currentStore);
-    setGlobalHub(hub);
     setLoading(false);
+
+    // Initial hub load
+    refreshGlobalHub();
   }, []);
 
   // Quick Till PIN Login
@@ -34,6 +52,10 @@ export const AuthProvider = ({ children }) => {
         action: 'PIN_LOGIN_SUCCESS',
         details: `Employee ${foundUser.name} (${foundUser.role}) signed into Till.`
       });
+      const currentStore = DB.getStore();
+      if (currentStore?.storeId) {
+        pingStoreOnline(currentStore.storeId);
+      }
       return { success: true, user: foundUser };
     }
     return { success: false, message: 'Invalid 4-digit PIN code' };
@@ -53,6 +75,12 @@ export const AuthProvider = ({ children }) => {
         action: 'EMAIL_LOGIN_SUCCESS',
         details: `Logged in via email/password as ${found.role}`
       });
+      const currentStore = DB.getStore();
+      if (currentStore?.storeId) {
+        pingStoreOnline(currentStore.storeId);
+        // Also ensure current store is synced to cloud
+        syncStoreToCloud(currentStore);
+      }
       return { success: true, user: found };
     }
     return { success: false, message: 'Account not found for this store' };
@@ -67,6 +95,12 @@ export const AuthProvider = ({ children }) => {
     setStore(newStore);
     setUser(owner);
     DB.setActiveUser(owner);
+
+    // Immediate Cloud Sync to MongoDB Atlas
+    syncStoreToCloud(newStore).then(() => {
+      refreshGlobalHub();
+    });
+
     setGlobalHub(DB.getGlobalHub());
     return newStore;
   };
@@ -75,6 +109,12 @@ export const AuthProvider = ({ children }) => {
   const updateStoreConfig = (fields) => {
     const updated = DB.updateStore(fields);
     setStore(updated);
+
+    // Sync updated store config to MongoDB Atlas
+    syncStoreToCloud(updated).then(() => {
+      refreshGlobalHub();
+    });
+
     setGlobalHub(DB.getGlobalHub());
     return updated;
   };
@@ -96,7 +136,7 @@ export const AuthProvider = ({ children }) => {
       registerStore,
       updateStoreConfig,
       logout,
-      refetchGlobalHub: () => setGlobalHub(DB.getGlobalHub())
+      refetchGlobalHub: refreshGlobalHub
     }}>
       {children}
     </AuthContext.Provider>
