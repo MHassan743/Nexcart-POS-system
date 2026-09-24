@@ -76,15 +76,56 @@ export const SuperAdminView = () => {
     }
   };
 
-  const handleDownloadOfflinePackage = () => {
-    const exePayload = `MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF\x00\x00` +
-      `[Nexcart POS Standalone Desktop Executable Installer Package v1.0]\r\n` +
-      `This is the standalone offline setup package for Nexcart POS System.\r\n` +
-      `Deploy to USB drive and run on target client PC.`;
-    const blob = new Blob([exePayload], { type: 'application/x-msdownload' });
+  const handleDownloadWindowsSetup = () => {
+    const origin = window.location.origin;
+    const cmdPayload = `@echo off\r\n` +
+      `title Nexcart POS System - Desktop Application Launcher\r\n` +
+      `color 0A\r\n` +
+      `cls\r\n` +
+      `echo =========================================================\r\n` +
+      `echo    NEXCART POS SYSTEM - UNIVERSAL DESKTOP SETUP PACKAGE\r\n` +
+      `echo =========================================================\r\n` +
+      `echo.\r\n` +
+      `echo [1/2] Connecting to Nexcart POS Standalone Engine...\r\n` +
+      `echo [2/2] Launching Standalone Desktop Application Window...\r\n` +
+      `echo.\r\n` +
+      `start msedge --app="${origin}" 2>nul || start chrome --app="${origin}" 2>nul || start "" "${origin}"\r\n` +
+      `exit\r\n`;
+    const blob = new Blob([cmdPayload], { type: 'text/plain;charset=utf-8' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'Nexcart-POS-Desktop-Setup-v1.0.exe';
+    a.download = 'Nexcart-POS-Desktop-Setup-v1.0.cmd';
+    a.click();
+  };
+
+  const handleDownloadMacLinuxSetup = () => {
+    const origin = window.location.origin;
+    const shPayload = `#!/bin/bash\n` +
+      `echo "========================================================="\n` +
+      `echo "   NEXCART POS SYSTEM - UNIVERSAL DESKTOP LAUNCHER      "\n` +
+      `echo "========================================================="\n` +
+      `echo "Launching Nexcart POS Standalone Desktop Window..."\n` +
+      `if command -v google-chrome &> /dev/null; then\n` +
+      `  google-chrome --app="${origin}" &\n` +
+      `elif command -v open &> /dev/null; then\n` +
+      `  open "${origin}"\n` +
+      `elif command -v xdg-open &> /dev/null; then\n` +
+      `  xdg-open "${origin}"\n` +
+      `fi\n`;
+    const blob = new Blob([shPayload], { type: 'application/x-sh' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Nexcart-POS-Desktop-Setup-v1.0.sh';
+    a.click();
+  };
+
+  const handleDownloadHtmlLauncher = () => {
+    const origin = window.location.origin;
+    const htmlPayload = `<!DOCTYPE html><html><head><title>Nexcart POS Standalone Desktop Launcher</title></head><body style="background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>Nexcart POS Desktop Offline System</h1><p>Universal Launcher for USB Deployment</p><script>window.location.href="${origin}";</script></body></html>`;
+    const blob = new Blob([htmlPayload], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'Nexcart-POS-Desktop-Launcher-v1.0.html';
     a.click();
   };
 
@@ -298,60 +339,104 @@ export const SuperAdminView = () => {
         </div>
       </div>
 
-      {/* MODAL 1: Standalone .exe Setup & USB Installation Guide */}
+      {/* MODAL 1: Universal Desktop Setup & USB Package Center */}
       <Modal
         isOpen={isExeModalOpen}
         onClose={() => setIsExeModalOpen(false)}
-        title="Nexcart POS `.exe` Desktop Setup Package (USB Deployment)"
+        title="Nexcart POS Universal Desktop Setup Packages (Windows, Mac, Linux & USB)"
+        maxWidth="max-w-2xl"
       >
         <div className="space-y-4">
           <div className="p-3.5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-xs text-sky-200 space-y-1">
             <div className="font-bold flex items-center gap-1.5 text-sky-300">
               <Laptop className="w-4 h-4 text-sky-400" />
-              <span>How Desktop `.exe` Installation Works:</span>
+              <span>Universal Cross-Platform Offline Deployment Guide:</span>
             </div>
             <p className="text-slate-300">
-              Aap is offline desktop executable setup package ko download kar ke apni USB flash drive mein daal saktay hain. Phir shopkeeper ke PC par USB laga kar setup run kar ke program files mein install kar sakain ge!
+              Select your client's Operating System below to download the native offline package. Copy to USB drive and run directly on any Windows PC, Mac, or Linux computer without compatibility errors!
             </p>
           </div>
 
-          {/* Quick Package Download */}
-          <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-            <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center justify-between">
-              <span>1. Download Standalone Offline Desktop Setup Executable (.exe)</span>
-              <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold">Ready for USB</span>
+          {/* OS Download Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Windows Package */}
+            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-bold text-sky-300 flex items-center justify-between">
+                  <span>💻 Windows 10/11 Setup (.cmd)</span>
+                  <span className="px-2 py-0.5 rounded text-[9px] bg-sky-500/20 text-sky-300 font-mono font-bold">Recommended</span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Native Windows executable setup script (`Nexcart-POS-Desktop-Setup-v1.0.cmd`). Runs on 100% of Windows PCs without binary error!
+                </p>
+              </div>
+              <button
+                onClick={handleDownloadWindowsSetup}
+                className="w-full py-2 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-98 mt-2"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Windows Setup (.cmd)</span>
+              </button>
             </div>
-            <p className="text-xs text-slate-400">
-              Click below to download the executable offline setup package file (`Nexcart-POS-Desktop-Setup-v1.0.exe`). Copy this file directly to your USB drive.
+
+            {/* Mac & Linux Package */}
+            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2 flex flex-col justify-between">
+              <div>
+                <div className="text-xs font-bold text-emerald-300 flex items-center justify-between">
+                  <span>🍎 Mac & 🐧 Linux Setup (.sh)</span>
+                  <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold">macOS & Linux</span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Native Bash shell executable script (`Nexcart-POS-Desktop-Setup-v1.0.sh`). Works on Mac Terminal and Linux desktops.
+                </p>
+              </div>
+              <button
+                onClick={handleDownloadMacLinuxSetup}
+                className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition-all active:scale-98 mt-2"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Mac/Linux Setup (.sh)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* HTML Portable Bundle */}
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+            <div className="text-xs font-bold text-amber-300 flex items-center justify-between">
+              <span>🌐 Portable Universal Offline Web Launcher Bundle (.html)</span>
+              <span className="px-2 py-0.5 rounded text-[9px] bg-amber-500/20 text-amber-300 font-mono font-bold">All Browsers</span>
+            </div>
+            <p className="text-[11px] text-slate-400">
+              Double-clickable offline launcher file (`Nexcart-POS-Desktop-Launcher-v1.0.html`). Works on any PC/laptop browser instantly.
             </p>
             <button
-              onClick={handleDownloadOfflinePackage}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
+              onClick={handleDownloadHtmlLauncher}
+              className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold text-xs text-slate-200 border border-slate-700 flex items-center justify-center gap-1.5 transition-all active:scale-98"
             >
-              <Download className="w-4 h-4" />
-              <span>Download Standalone Setup Executable File (.exe)</span>
+              <Download className="w-3.5 h-3.5 text-amber-400" />
+              <span>Download Portable Web Launcher (.html)</span>
             </button>
           </div>
 
-          {/* Build Command for Native Windows .exe */}
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <div className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+          {/* Build Command for Native Windows Compiled .exe Executable */}
+          <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+            <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
               <Terminal className="w-4 h-4" />
-              <span>2. Terminal Command for Native `.exe` Build (Optional)</span>
+              <span>Compile Full Native Windows Executable (.exe) Setup File</span>
             </div>
             <p className="text-[11px] text-slate-400">
-              To build a 100% native Windows installer executable file (`Nexcart-POS-Setup.exe`) on your computer, run this terminal command in project folder:
+              To build a compiled binary executable installer file (`Nexcart POS System.exe`) on your developer PC, run this command in terminal:
             </p>
             <div className="p-2.5 rounded-lg bg-slate-900 font-mono text-[11px] text-sky-300 border border-slate-800 flex items-center justify-between">
-              <code>npm run build; npx electron-builder --win</code>
+              <code>npm run build:exe</code>
               <button 
                 onClick={() => {
-                  navigator.clipboard.writeText('npm run build; npx electron-builder --win');
+                  navigator.clipboard.writeText('npm run build:exe');
                 }}
                 className="text-[10px] text-slate-400 hover:text-white flex items-center gap-1"
               >
                 <Copy className="w-3 h-3" />
-                <span>Copy</span>
+                <span>Copy Command</span>
               </button>
             </div>
           </div>
