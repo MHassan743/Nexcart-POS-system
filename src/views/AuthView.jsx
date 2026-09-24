@@ -84,8 +84,8 @@ export const AuthView = ({ onCompleteAuth }) => {
   const handleSignupSubmit = (e) => {
     e.preventDefault();
     setError('');
-    if (!signupForm.storeName || !signupForm.ownerEmail || !signupForm.ownerName || !signupForm.ownerPin) {
-      setError('Please fill in all required store and owner information');
+    if (!signupForm.storeName || !signupForm.ownerEmail || !signupForm.ownerName || !signupForm.ownerPin || !signupForm.phone || !signupForm.address) {
+      setError('Please fill in all required fields including Phone Number and Shop Location');
       return;
     }
 
@@ -337,6 +337,31 @@ export const AuthView = ({ onCompleteAuth }) => {
                     required
                     value={signupForm.ownerEmail}
                     onChange={(e) => setSignupForm({ ...signupForm, ownerEmail: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-300 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+92 300 1234567"
+                    value={signupForm.phone}
+                    onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-300 mb-1">Shop Location / Address *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Shop #12, Commercial Area"
+                    value={signupForm.address}
+                    onChange={(e) => setSignupForm({ ...signupForm, address: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>

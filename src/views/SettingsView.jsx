@@ -72,9 +72,10 @@ export const SettingsView = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Business Phone Number</label>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Business Phone Number *</label>
                 <input
                   type="text"
+                  required
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors"
@@ -83,9 +84,10 @@ export const SettingsView = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Shop Address (Appears on Printed Receipts)</label>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Shop Address / Location * (Appears on Printed Receipts & Master Directory)</label>
               <input
                 type="text"
+                required
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors"

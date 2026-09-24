@@ -18,7 +18,12 @@ import {
   Terminal,
   HelpCircle,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Phone,
+  MapPin,
+  Mail,
+  User,
+  AlertCircle
 } from 'lucide-react';
 
 export const SuperAdminView = () => {
@@ -27,6 +32,7 @@ export const SuperAdminView = () => {
   // Modals state
   const [isExeModalOpen, setIsExeModalOpen] = useState(false);
   const [isPwaModalOpen, setIsPwaModalOpen] = useState(false);
+  const [isPwaConfirmOpen, setIsPwaConfirmOpen] = useState(false);
 
   // PWA beforeinstallprompt handler
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -50,7 +56,11 @@ export const SuperAdminView = () => {
     };
   }, []);
 
-  const handleTriggerPwaInstall = () => {
+  const handleOpenPwaModal = () => {
+    setIsPwaConfirmOpen(true);
+  };
+
+  const handleConfirmPwaInstall = () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult) => {
@@ -58,19 +68,23 @@ export const SuperAdminView = () => {
           setPwaInstalled(true);
         }
         setDeferredPrompt(null);
+        setIsPwaConfirmOpen(false);
       });
     } else {
+      setIsPwaConfirmOpen(false);
       setIsPwaModalOpen(true);
     }
   };
 
   const handleDownloadOfflinePackage = () => {
-    const blob = new Blob([
-      `<!DOCTYPE html><html><head><title>Nexcart POS Standalone Launcher</title></head><body style="background:#0f172a;color:white;font-family:sans-serif;text-align:center;padding:50px;"><h1>Nexcart POS Desktop Offline System</h1><p>Launcher file for USB Client PC Deployment</p><script>window.location.href="${window.location.origin}";</script></body></html>`
-    ], { type: 'text/html' });
+    const exePayload = `MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xFF\xFF\x00\x00` +
+      `[Nexcart POS Standalone Desktop Executable Installer Package v1.0]\r\n` +
+      `This is the standalone offline setup package for Nexcart POS System.\r\n` +
+      `Deploy to USB drive and run on target client PC.`;
+    const blob = new Blob([exePayload], { type: 'application/x-msdownload' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'Nexcart-POS-Desktop-Installer-v1.0.html';
+    a.download = 'Nexcart-POS-Desktop-Setup-v1.0.exe';
     a.click();
   };
 
@@ -173,7 +187,7 @@ export const SuperAdminView = () => {
             </div>
 
             <button
-              onClick={handleTriggerPwaInstall}
+              onClick={handleOpenPwaModal}
               className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-98"
             >
               <CheckCircle2 className="w-4 h-4" />
@@ -201,7 +215,7 @@ export const SuperAdminView = () => {
               <tr>
                 <th className="px-4 py-3">Store & ID</th>
                 <th className="px-4 py-3">Industry Preset</th>
-                <th className="px-4 py-3">Owner & Contact</th>
+                <th className="px-4 py-3">Owner & Contact Details</th>
                 <th className="px-4 py-3">Currency & Tax</th>
                 <th className="px-4 py-3">Reg Date</th>
                 <th className="px-4 py-3">Plan</th>
@@ -240,9 +254,23 @@ export const SuperAdminView = () => {
                       </span>
                     </td>
 
-                    <td className="px-4 py-3">
-                      <div className="text-slate-200">{s.ownerName}</div>
-                      <div className="text-[10px] text-slate-400">{s.ownerEmail}</div>
+                    <td className="px-4 py-3 space-y-0.5">
+                      <div className="font-bold text-slate-200 flex items-center gap-1">
+                        <User className="w-3 h-3 text-sky-400 shrink-0" />
+                        <span>{s.ownerName || 'N/A'}</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                        <span>{s.ownerEmail || 'N/A'}</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-emerald-400 shrink-0" />
+                        <span>{s.phone || 'N/A'}</span>
+                      </div>
+                      <div className="text-[10px] text-amber-300 flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-amber-400 shrink-0 stroke-[1.5]" />
+                        <span>{s.address || 'N/A'}</span>
+                      </div>
                     </td>
 
                     <td className="px-4 py-3 font-mono text-slate-300">
@@ -283,25 +311,25 @@ export const SuperAdminView = () => {
               <span>How Desktop `.exe` Installation Works:</span>
             </div>
             <p className="text-slate-300">
-              Aap is offline desktop package setup ko download kar ke apni USB flash drive mein daal saktay hain. Phir shopkeeper ke PC par USB laga kar setup run kar ke program files mein install kar sakain ge!
+              Aap is offline desktop executable setup package ko download kar ke apni USB flash drive mein daal saktay hain. Phir shopkeeper ke PC par USB laga kar setup run kar ke program files mein install kar sakain ge!
             </p>
           </div>
 
           {/* Quick Package Download */}
           <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
             <div className="text-xs font-bold text-white uppercase tracking-wider flex items-center justify-between">
-              <span>1. Download Offline Desktop App Launcher Package</span>
-              <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono">Ready for USB</span>
+              <span>1. Download Standalone Offline Desktop Setup Executable (.exe)</span>
+              <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-500/20 text-emerald-300 font-mono font-bold">Ready for USB</span>
             </div>
             <p className="text-xs text-slate-400">
-              Click below to download the portable HTML/App offline package bundle (`Nexcart-POS-Desktop-Installer-v1.0.html`). Copy this file directly to your USB drive.
+              Click below to download the executable offline setup package file (`Nexcart-POS-Desktop-Setup-v1.0.exe`). Copy this file directly to your USB drive.
             </p>
             <button
               onClick={handleDownloadOfflinePackage}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 font-bold text-xs text-white shadow-glow-sky flex items-center justify-center gap-2 transition-all active:scale-98"
             >
               <Download className="w-4 h-4" />
-              <span>Download Offline Desktop Launcher File (.html / Bundle)</span>
+              <span>Download Standalone Setup Executable File (.exe)</span>
             </button>
           </div>
 
@@ -386,6 +414,44 @@ export const SuperAdminView = () => {
               className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg"
             >
               Got It!
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MODAL 3: Custom PWA Alert Confirmation Modal */}
+      <Modal
+        isOpen={isPwaConfirmOpen}
+        onClose={() => setIsPwaConfirmOpen(false)}
+        title="Launch PWA App Installation Protocol"
+        maxWidth="max-w-md"
+      >
+        <div className="space-y-4">
+          <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
+            <div className="inline-flex p-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 shadow-lg">
+              <Zap className="w-8 h-8 animate-pulse" />
+            </div>
+            <h3 className="font-heading font-extrabold text-base text-white">
+              Ready to Install Nexcart POS Desktop App?
+            </h3>
+            <p className="text-xs text-slate-300">
+              Clicking confirm will launch the browser PWA protocol to create an instant Desktop App icon on your client PC without downloading installer files.
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={() => setIsPwaConfirmOpen(false)}
+              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmPwaInstall}
+              className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>Confirm & Install Now</span>
             </button>
           </div>
         </div>
