@@ -61,13 +61,15 @@ export const SuperAdminView = () => {
   };
 
   const handleConfirmPwaInstall = () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
+    const promptEvent = deferredPrompt || window.deferredPwaPrompt;
+    if (promptEvent) {
+      promptEvent.prompt();
+      promptEvent.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
           setPwaInstalled(true);
         }
         setDeferredPrompt(null);
+        window.deferredPwaPrompt = null;
         setIsPwaConfirmOpen(false);
       });
     } else {
@@ -76,13 +78,27 @@ export const SuperAdminView = () => {
     }
   };
 
-  const handleDownloadExeSetup = () => {
-    const a = document.createElement('a');
-    a.href = '/Nexcart-POS-Setup-v1.0.exe';
-    a.download = 'Nexcart-POS-Setup-v1.0.exe';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownloadExeSetup = async () => {
+    try {
+      const response = await fetch('/Nexcart-POS-Setup-v1.0.exe');
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = 'Nexcart-POS-Setup-v1.0.exe';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 10000);
+    } catch (err) {
+      const a = document.createElement('a');
+      a.href = '/Nexcart-POS-Setup-v1.0.exe';
+      a.download = 'Nexcart-POS-Setup-v1.0.exe';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
   };
 
   const handleDownloadWindowsSetup = () => {

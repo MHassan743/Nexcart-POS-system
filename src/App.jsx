@@ -141,6 +141,17 @@ const MainLayout = () => {
 };
 
 export default function App() {
+  React.useEffect(() => {
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      window.deferredPwaPrompt = e;
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <POSProvider>
