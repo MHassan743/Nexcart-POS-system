@@ -70,7 +70,7 @@ export const PRICING_PLANS = [
       'Real-time Cloud Telemetry Sync',
       '45 Days Zero-Cost Access'
     ],
-    note: '1.5 month use is 100% FREE with zero setup fee. After 1.5 months, if you choose to continue, Setup Fee of Rs 15,000 + Rs 5,000/month System Maintenance Fee will be charged. If you do not choose a paid plan, access will be automatically blocked after 1.5 months.',
+    note: '1.5 month use is 100% FREE with zero setup fee. After 1.5 months, if you choose to continue, a one-time Setup Fee of Rs 12,000 + Rs 5,000/month System Maintenance Fee will be charged. If you do not choose a paid plan, access will be automatically blocked after 1.5 months.',
     isPopular: false,
     requiresProof: false
   },
@@ -88,25 +88,25 @@ export const PRICING_PLANS = [
       'Priority 24/7 Technical Support',
       'Regular Anti-Leakage System Updates'
     ],
-    note: 'Pay monthly maintenance fee of Rs 5,000 to keep system operational and synced.',
+    note: 'One-time Setup Fee: Rs 12,000 (charged once at activation) + Rs 5,000/month ongoing maintenance. First month total: Rs 17,000.',
     isPopular: true,
     requiresProof: true
   },
   {
     id: 'annual',
     name: 'Annual Discounted Plan',
-    badge: 'BEST VALUE - SAVE Rs 3,000',
-    price: 'Rs 57,000',
+    badge: 'BEST VALUE - SAVE Rs 32,400 (45% OFF)',
+    price: 'Rs 39,600',
     period: '/ year',
-    highlight: 'Rs 5,000/mo = Rs 60,000 ➔ Discounted to Rs 57,000!',
+    highlight: 'Setup Rs 12,000 + Rs 5,000×12 = Rs 72,000 ➔ Discounted to Rs 39,600!',
     features: [
       'Everything in Monthly Plan',
-      'Save Rs 3,000 Annual Discount',
+      'Save Rs 32,400 — 45% Annual Discount',
       '1 Full Year VIP Priority Cloud Sync',
       'Free Business Onboarding Support',
       'Guaranteed Zero Price Increase for 1 Year'
     ],
-    note: 'Best annual package for long-term retail shops.',
+    note: 'Best annual package for long-term retail shops. One-time setup fee included. Pay once, run for 12 months!',
     isPopular: false,
     requiresProof: true
   }
