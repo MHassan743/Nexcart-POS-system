@@ -78,6 +78,7 @@ const MainLayout = () => {
     if (superAdminKeyInput === SUPER_ADMIN_KEY) {
       setIsSuperAdminUnlocked(true);
       setIsSuperAdminModalOpen(false);
+      setIsPricingOpen(false);
       setActiveTab('superadmin');
       setSuperAdminKeyInput('');
     } else {
@@ -159,6 +160,7 @@ const MainLayout = () => {
         }}
         title="Super Admin Secret Key Verification"
         maxWidth="max-w-md"
+        zIndex="z-[60]"
       >
         <form onSubmit={handleSuperAdminAuthSubmit} className="space-y-4">
           <div className="text-center space-y-2">
@@ -212,6 +214,7 @@ const MainLayout = () => {
         onClose={() => setIsPinModalOpen(false)}
         title="Quick Switch Till Cashier PIN"
         maxWidth="max-w-sm"
+        zIndex="z-[60]"
       >
         <form onSubmit={handleQuickPinSwitch} className="space-y-4">
           <div className="text-center space-y-1">

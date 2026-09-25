@@ -1,11 +1,11 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
-export const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-lg" }) => {
+export const Modal = ({ isOpen, onClose, title, children, maxWidth = "max-w-lg", zIndex = "z-50" }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
+    <div className={`fixed inset-0 ${zIndex} flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in`}>
       <div 
         className={`w-full ${maxWidth} bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-slide-up`}
         onClick={(e) => e.stopPropagation()}
