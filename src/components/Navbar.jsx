@@ -46,15 +46,6 @@ export const Navbar = ({ onOpenPinModal, onNavigate }) => {
 
       {/* Right Controls & Cashier Profile */}
       <div className="flex items-center gap-2 sm:gap-3">
-        {/* Nexcart Central Hub Link */}
-        <button
-          onClick={() => onNavigate('superadmin')}
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-slate-300 transition-all hover:border-sky-500/40"
-          title="Open Nexcart Agency Serverless Master Hub"
-        >
-          <Globe className="w-3.5 h-3.5 text-sky-400" />
-          <span>Nexcart Cloud Hub</span>
-        </button>
 
         {/* Low Stock Alert Notifications */}
         <div className="relative">
