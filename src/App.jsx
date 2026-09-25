@@ -23,23 +23,28 @@ const MainLayout = () => {
   const { user, store, loginWithPin, updateSubscription } = useAuth();
   const [activeTab, setActiveTab] = useState('pos');
 
-  const subStatus = store?.subscriptionStatus || store?.subscription?.status;
-  const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName;
+  const subStatus = (store?.subscriptionStatus || store?.subscription?.status || store?.status || 'trial_active').toString().toLowerCase();
+  const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName || store?.plan;
 
-  const isLocked = (!planId || subStatus === 'pending_verification' || subStatus === 'blocked') && activeTab !== 'superadmin';
+  const isPending = subStatus === 'pending_verification';
+  const isBlocked = subStatus === 'blocked';
+  const isTrial = subStatus === 'trial_active';
+  const trialEnd = store?.trialEndDate || store?.subscription?.trialEndDate;
+  const isTrialExpired = isTrial && trialEnd && new Date() > new Date(trialEnd);
+
+  const isLocked = (!planId || isPending || isBlocked || isTrialExpired) && activeTab !== 'superadmin';
   const [isPricingOpen, setIsPricingOpen] = useState(isLocked);
 
   React.useEffect(() => {
     if (isLocked) {
       setIsPricingOpen(true);
-    } else if (subStatus === 'trial_active') {
-      const trialEnd = store?.trialEndDate || store?.subscription?.trialEndDate;
-      if (trialEnd && new Date() > new Date(trialEnd)) {
-        updateSubscription({ ...store?.subscription, status: 'blocked' });
-        setIsPricingOpen(true);
-      }
+    } else if (isTrialExpired) {
+      updateSubscription({ ...store?.subscription, status: 'blocked' });
+      setIsPricingOpen(true);
+    } else {
+      setIsPricingOpen(false);
     }
-  }, [subStatus, planId]);
+  }, [subStatus, planId, isLocked]);
 
   // Quick PIN Switcher Modal State
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
