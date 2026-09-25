@@ -156,7 +156,7 @@ const MainLayout = () => {
               type="password"
               required
               autoFocus
-              placeholder="Enter Secret Key (e.g. Chicknare43@&$)"
+              placeholder="Enter Super Admin Secret Key..."
               value={superAdminKeyInput}
               onChange={(e) => setSuperAdminKeyInput(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-center font-mono font-bold text-base text-white focus:outline-none focus:border-sky-500 tracking-widest"
