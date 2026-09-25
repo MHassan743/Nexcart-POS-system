@@ -107,8 +107,8 @@ export const SuperAdminView = () => {
   };
 
   const handleDownloadExeSetup = () => {
-    // Download 100% native Windows standalone binary installer Setup (.exe)
-    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/download/v1.0.0/Nexcart-POS-Setup-v1.0.exe';
+    // Download 100% native Windows standalone binary installer Setup (.exe) from latest release
+    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/latest/download/Nexcart-POS-Setup-v1.0.exe';
     const link = document.createElement('a');
     link.href = GITHUB_RELEASE_URL;
     link.download = 'Nexcart-POS-Setup-v1.0.exe';
