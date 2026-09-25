@@ -132,15 +132,39 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setErrorMsg('Image size should be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        setErrorMsg('Image size should be less than 10MB');
         return;
       }
       setErrorMsg('');
       setSlipImage(file);
+
+      // Compress image using Canvas to ensure fast sync to MongoDB
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setSlipPreview(reader.result);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1000;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+          setSlipPreview(compressedDataUrl);
+        };
+        img.src = event.target.result;
       };
       reader.readAsDataURL(file);
     }
@@ -159,7 +183,6 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
 
     setIsSubmitting(true);
 
-    // Calculate trial expiry date if trial selected
     const now = new Date();
     const trialExpiry = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -178,10 +201,12 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
     setTimeout(() => {
       setIsSubmitting(false);
       onSelectPlan(subscriptionData);
-      if (onClose) onClose();
     }, 600);
   };
 
+  const isPending = currentSubscription?.status === 'pending_verification';
+  const isBlocked = currentSubscription?.status === 'blocked';
+  const isTrialActive = currentSubscription?.status === 'trial_active';
   const currentPlanObj = PRICING_PLANS.find(p => p.id === selectedPlanId);
 
   return (
@@ -203,6 +228,29 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
         </div>
 
         <div className="p-6 space-y-6">
+          {isPending && (
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/40 text-amber-200 text-xs space-y-1 animate-pulse">
+              <div className="flex items-center gap-2 font-bold text-sm text-amber-300">
+                <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>⏳ Payment Proof Slip Submitted — Pending Super Admin Approval</span>
+              </div>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Your transaction proof slip is currently being reviewed by Super Admin in Nexcart Cloud Hub. Terminal access will unlock automatically upon Super Admin approval.
+              </p>
+            </div>
+          )}
+
+          {isBlocked && (
+            <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/40 text-rose-200 text-xs space-y-1">
+              <div className="flex items-center gap-2 font-bold text-sm text-rose-300">
+                <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>⛔ Store POS Access Blocked — Subscription Maintenance Expired</span>
+              </div>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                Your 1.5 Month Free Trial or Subscription has ended. Please select a paid maintenance plan, transfer funds, and upload receipt screenshot below to restore register access.
+              </p>
+            </div>
+          )}
           {/* Plan Cards Selection */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {PRICING_PLANS.map((plan) => {

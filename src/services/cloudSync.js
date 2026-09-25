@@ -58,3 +58,21 @@ export async function fetchCloudHub() {
     return [];
   }
 }
+
+/**
+ * SuperAdmin se store subscription status approve/reject/block karo
+ */
+export async function approveStoreSubscription(storeId, subscriptionStatus, subscriptionPlan) {
+  try {
+    const res = await fetch(`${API_BASE}/api/stores`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ storeId, subscriptionStatus, subscriptionPlan })
+    });
+    const json = await res.json();
+    return json;
+  } catch (err) {
+    console.warn('[CloudSync] approveStoreSubscription error:', err.message);
+    return { success: false, error: err.message };
+  }
+}

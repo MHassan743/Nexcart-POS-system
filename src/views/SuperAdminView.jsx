@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { approveStoreSubscription } from '../services/cloudSync.js';
 import { NexcartLogo, NexcartBadge } from '../components/NexcartBranding.jsx';
 import { Modal } from '../components/Modal.jsx';
 import { 
@@ -39,6 +40,15 @@ export const SuperAdminView = () => {
 
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
+    if (refetchGlobalHub) {
+      await refetchGlobalHub();
+    }
+    setTimeout(() => setIsRefreshing(false), 600);
+  };
+
+  const handleApproveSubscription = async (targetStoreId, status, planName) => {
+    setIsRefreshing(true);
+    await approveStoreSubscription(targetStoreId, status, planName);
     if (refetchGlobalHub) {
       await refetchGlobalHub();
     }
@@ -314,12 +324,13 @@ export const SuperAdminView = () => {
                 <th className="px-4 py-3">Subscription Plan</th>
                 <th className="px-4 py-3">Payment Proof Slip</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Super Admin Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium">
               {globalHub.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-500">
+                  <td colSpan={9} className="py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Globe className="w-10 h-10 text-slate-600 stroke-[1.5]" />
                       <p className="text-xs font-bold text-slate-300">No Remote Client Stores Registered</p>
@@ -392,12 +403,12 @@ export const SuperAdminView = () => {
                               setSelectedSlip(slipImage);
                               setIsSlipModalOpen(true);
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold transition-all flex items-center gap-1"
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold transition-all flex items-center gap-1 shadow-sm"
                           >
-                            <span>📷 View Slip</span>
+                            <span>📷 View Slip Proof</span>
                           </button>
                         ) : (
-                          <span className="text-[10px] text-slate-500 italic">No Slip Required</span>
+                          <span className="text-[10px] text-slate-500 italic">No Slip Uploaded</span>
                         )}
                       </td>
 
@@ -405,10 +416,36 @@ export const SuperAdminView = () => {
                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
                           status === 'paid_active' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
                           status === 'pending_verification' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse' :
+                          status === 'blocked' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' :
                           'bg-sky-500/20 text-sky-300 border-sky-500/40'
                         }`}>
                           {status.toUpperCase()}
                         </span>
+                      </td>
+
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {status !== 'paid_active' && (
+                            <button
+                              type="button"
+                              onClick={() => handleApproveSubscription(s.storeId, 'paid_active', planName)}
+                              className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shadow transition-all active:scale-95"
+                              title="Approve payment slip and grant full POS access"
+                            >
+                              ✅ Approve & Activate
+                            </button>
+                          )}
+                          {status !== 'blocked' && (
+                            <button
+                              type="button"
+                              onClick={() => handleApproveSubscription(s.storeId, 'blocked', planName)}
+                              className="px-2 py-1 rounded bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 text-[10px] font-bold transition-all active:scale-95"
+                              title="Block store access"
+                            >
+                              🚫 Block
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

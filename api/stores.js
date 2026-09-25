@@ -44,6 +44,25 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, store });
     }
 
+    // PUT /api/stores — SuperAdmin Approval & Status Update
+    if (req.method === 'PUT') {
+      const { storeId, subscriptionStatus, subscriptionPlan } = req.body;
+      if (!storeId || !subscriptionStatus) {
+        return res.status(400).json({ success: false, message: 'storeId and subscriptionStatus are required' });
+      }
+
+      const updatePayload = { subscriptionStatus };
+      if (subscriptionPlan) updatePayload.subscriptionPlan = subscriptionPlan;
+
+      const store = await Store.findOneAndUpdate(
+        { storeId },
+        { $set: updatePayload },
+        { new: true }
+      );
+
+      return res.status(200).json({ success: true, store });
+    }
+
     return res.status(405).json({ success: false, message: 'Method not allowed' });
 
   } catch (err) {

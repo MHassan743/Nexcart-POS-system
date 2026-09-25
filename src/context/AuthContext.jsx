@@ -16,11 +16,29 @@ export const AuthProvider = ({ children }) => {
     const cloudStores = await fetchCloudHub();
 
     if (cloudStores && cloudStores.length > 0) {
-      // Merge cloudStores with localStores (preferring cloud data for duplicates)
       const storeMap = new Map();
       localHub.forEach(s => storeMap.set(s.storeId, s));
       cloudStores.forEach(s => storeMap.set(s.storeId, s));
-      setGlobalHub(Array.from(storeMap.values()));
+      const updatedHub = Array.from(storeMap.values());
+      setGlobalHub(updatedHub);
+
+      // If current store status was updated on cloud by Super Admin, update local store state
+      const currentStore = DB.getStore();
+      if (currentStore?.storeId) {
+        const cloudMatch = cloudStores.find(c => c.storeId === currentStore.storeId);
+        if (cloudMatch && cloudMatch.subscriptionStatus && cloudMatch.subscriptionStatus !== currentStore.subscriptionStatus) {
+          const updated = DB.updateStore({
+            subscriptionStatus: cloudMatch.subscriptionStatus,
+            subscriptionPlan: cloudMatch.subscriptionPlan || currentStore.subscriptionPlan,
+            subscription: {
+              ...(currentStore.subscription || {}),
+              status: cloudMatch.subscriptionStatus,
+              planName: cloudMatch.subscriptionPlan || currentStore.subscriptionPlan
+            }
+          });
+          setStore(updated);
+        }
+      }
     } else {
       setGlobalHub(localHub);
     }

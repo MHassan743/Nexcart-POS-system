@@ -22,7 +22,24 @@ import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
 const MainLayout = () => {
   const { user, store, loginWithPin, updateSubscription } = useAuth();
   const [activeTab, setActiveTab] = useState('pos');
-  const [isPricingOpen, setIsPricingOpen] = useState(!store?.subscription?.planId);
+
+  const subStatus = store?.subscriptionStatus || store?.subscription?.status;
+  const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName;
+
+  const isLocked = !planId || subStatus === 'pending_verification' || subStatus === 'blocked';
+  const [isPricingOpen, setIsPricingOpen] = useState(isLocked);
+
+  React.useEffect(() => {
+    if (isLocked) {
+      setIsPricingOpen(true);
+    } else if (subStatus === 'trial_active') {
+      const trialEnd = store?.trialEndDate || store?.subscription?.trialEndDate;
+      if (trialEnd && new Date() > new Date(trialEnd)) {
+        updateSubscription({ ...store?.subscription, status: 'blocked' });
+        setIsPricingOpen(true);
+      }
+    }
+  }, [subStatus, planId]);
 
   // Quick PIN Switcher Modal State
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -234,11 +251,13 @@ const MainLayout = () => {
       {/* Pricing & Subscription Modal */}
       <PricingModal
         isOpen={isPricingOpen}
-        onClose={() => setIsPricingOpen(false)}
+        onClose={isLocked ? undefined : () => setIsPricingOpen(false)}
         currentSubscription={store?.subscription}
         onSelectPlan={(subscriptionData) => {
           updateSubscription(subscriptionData);
-          setIsPricingOpen(false);
+          if (subscriptionData.status === 'trial_active' || subscriptionData.status === 'paid_active') {
+            setIsPricingOpen(false);
+          }
         }}
       />
     </div>
