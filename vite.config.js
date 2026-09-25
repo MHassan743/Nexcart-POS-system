@@ -52,6 +52,7 @@ const exeServerPlugin = () => ({
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   plugins: [react(), exeServerPlugin()],
   server: {
     port: 3000,
