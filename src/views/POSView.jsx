@@ -833,7 +833,65 @@ export const POSView = () => {
         )}
       </Modal>
 
-      {/* 5. Quick Add Customer Modal */}
+      {/* 5. Parked / Held Orders Modal */}
+      <Modal
+        isOpen={showParkedDrawer}
+        onClose={() => setShowParkedDrawer(false)}
+        title="Parked / Held Orders"
+        maxWidth="max-w-lg"
+      >
+        <div className="space-y-4">
+          {parkedBills.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              <PauseCircle className="w-12 h-12 stroke-[1] mb-2 mx-auto text-slate-600" />
+              <p className="text-xs font-medium">No parked or held orders currently</p>
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+              {parkedBills.map(bill => (
+                <div key={bill.id} className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs text-amber-400 font-mono">{bill.id}</span>
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(bill.timestamp || Date.now()).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-200 mt-1">
+                      Customer: <strong className="text-sky-300">{bill.customer?.name || 'Walk-in Customer'}</strong>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">
+                      {bill.items?.length || 0} item(s) &nbsp;|&nbsp; Note: <span className="text-slate-300 font-medium">{bill.note || 'Held Cart'}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      resumeParkedBill(bill.id);
+                      setShowParkedDrawer(false);
+                    }}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg transition-all flex items-center gap-1.5"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Resume Order</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2 border-t border-slate-800">
+            <button
+              onClick={() => setShowParkedDrawer(false)}
+              className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 6. Quick Add Customer Modal */}
       <Modal
         isOpen={isAddCustomerOpen}
         onClose={() => setIsAddCustomerOpen(false)}
