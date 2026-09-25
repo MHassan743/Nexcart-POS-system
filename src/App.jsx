@@ -21,6 +21,13 @@ import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
 
 const MainLayout = () => {
   const { user, loginWithPin } = useAuth();
+  const [activeTab, setActiveTab] = useState('pos');
+
+  // Quick PIN Switcher Modal State
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [switchPinInput, setSwitchPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+
   // Super Admin Secret Lock State
   const [isSuperAdminUnlocked, setIsSuperAdminUnlocked] = useState(false);
   const [isSuperAdminModalOpen, setIsSuperAdminModalOpen] = useState(false);
@@ -28,6 +35,10 @@ const MainLayout = () => {
   const [superAdminError, setSuperAdminError] = useState('');
 
   const SUPER_ADMIN_KEY = 'Chicknare43@&$';
+
+  if (!user) {
+    return <AuthView onCompleteAuth={() => setActiveTab('pos')} />;
+  }
 
   const handleSelectTab = (tabId) => {
     if (tabId === 'superadmin') {
