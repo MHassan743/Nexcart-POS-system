@@ -26,7 +26,7 @@ const MainLayout = () => {
   const subStatus = store?.subscriptionStatus || store?.subscription?.status;
   const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName;
 
-  const isLocked = !planId || subStatus === 'pending_verification' || subStatus === 'blocked';
+  const isLocked = (!planId || subStatus === 'pending_verification' || subStatus === 'blocked') && activeTab !== 'superadmin';
   const [isPricingOpen, setIsPricingOpen] = useState(isLocked);
 
   React.useEffect(() => {
@@ -253,6 +253,11 @@ const MainLayout = () => {
         isOpen={isPricingOpen}
         onClose={isLocked ? undefined : () => setIsPricingOpen(false)}
         currentSubscription={store?.subscription}
+        onOpenSuperAdmin={() => {
+          setSuperAdminKeyInput('');
+          setSuperAdminError('');
+          setIsSuperAdminModalOpen(true);
+        }}
         onSelectPlan={(subscriptionData) => {
           updateSubscription(subscriptionData);
           if (subscriptionData.status === 'trial_active' || subscriptionData.status === 'paid_active') {

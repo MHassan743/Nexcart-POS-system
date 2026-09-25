@@ -112,7 +112,7 @@ export const PRICING_PLANS = [
   }
 ];
 
-export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscription }) => {
+export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscription, onOpenSuperAdmin }) => {
   const [selectedPlanId, setSelectedPlanId] = useState('trial');
   const [activePaymentTab, setActivePaymentTab] = useState('jazzcash');
   const [copiedField, setCopiedField] = useState('');
@@ -215,6 +215,18 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
         
         {/* Top Header */}
         <div className="p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-slate-800 text-center relative">
+          {onOpenSuperAdmin && (
+            <button
+              type="button"
+              onClick={onOpenSuperAdmin}
+              className="absolute top-4 right-4 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-300 font-bold text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95"
+              title="Super Admin Secret Key Verification"
+            >
+              <CreditCard className="w-3.5 h-3.5 text-sky-400" />
+              <span>Super Admin Key</span>
+            </button>
+          )}
+
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-400 text-xs font-semibold uppercase tracking-wider mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Nexcart POS Business Subscription & Pricing</span>
