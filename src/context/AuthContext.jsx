@@ -119,6 +119,23 @@ export const AuthProvider = ({ children }) => {
     return updated;
   };
 
+  // Update Subscription & Telemetry Sync
+  const updateSubscription = (subscriptionData) => {
+    const updated = DB.updateStore({
+      subscription: subscriptionData,
+      subscriptionPlan: subscriptionData.planName,
+      subscriptionStatus: subscriptionData.status,
+      trialEndDate: subscriptionData.trialEndDate,
+      paymentSlip: subscriptionData.paymentSlip
+    });
+    setStore(updated);
+    syncStoreToCloud(updated).then(() => {
+      refreshGlobalHub();
+    });
+    setGlobalHub(DB.getGlobalHub());
+    return updated;
+  };
+
   // Logout
   const logout = () => {
     DB.logoutUser();
@@ -135,6 +152,7 @@ export const AuthProvider = ({ children }) => {
       loginWithEmail,
       registerStore,
       updateStoreConfig,
+      updateSubscription,
       logout,
       refetchGlobalHub: refreshGlobalHub
     }}>

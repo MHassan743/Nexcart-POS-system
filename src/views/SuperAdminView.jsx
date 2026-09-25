@@ -49,6 +49,8 @@ export const SuperAdminView = () => {
   const [isExeModalOpen, setIsExeModalOpen] = useState(false);
   const [isPwaModalOpen, setIsPwaModalOpen] = useState(false);
   const [isPwaConfirmOpen, setIsPwaConfirmOpen] = useState(false);
+  const [isSlipModalOpen, setIsSlipModalOpen] = useState(false);
+  const [selectedSlip, setSelectedSlip] = useState(null);
 
   // PWA beforeinstallprompt handler
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -95,11 +97,11 @@ export const SuperAdminView = () => {
   };
 
   const handleDownloadExeSetup = () => {
-    // GitHub Releases URL - Vercel static file limit bypass
-    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/download/v1.0.0/Nexcart-POS-Setup-v1.0.exe';
+    // Download full packaged win.zip to prevent missing ffmpeg.dll error
+    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/download/v1.0.0/win.zip';
     const link = document.createElement('a');
     link.href = GITHUB_RELEASE_URL;
-    link.download = 'Nexcart-POS-Setup-v1.0.exe';
+    link.download = 'Nexcart-POS-Windows.zip';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -309,14 +311,15 @@ export const SuperAdminView = () => {
                 <th className="px-4 py-3">Owner & Contact Details</th>
                 <th className="px-4 py-3">Currency & Tax</th>
                 <th className="px-4 py-3">Reg Date</th>
-                <th className="px-4 py-3">Plan</th>
+                <th className="px-4 py-3">Subscription Plan</th>
+                <th className="px-4 py-3">Payment Proof Slip</th>
                 <th className="px-4 py-3">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-medium">
               {globalHub.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <td colSpan={8} className="py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center space-y-2">
                       <Globe className="w-10 h-10 text-slate-600 stroke-[1.5]" />
                       <p className="text-xs font-bold text-slate-300">No Remote Client Stores Registered</p>
@@ -327,62 +330,89 @@ export const SuperAdminView = () => {
                   </td>
                 </tr>
               ) : (
-                globalHub.map(s => (
-                  <tr key={s.storeId} className={`hover:bg-slate-800/40 transition-colors ${s.storeId === store?.storeId ? 'bg-sky-500/10' : ''}`}>
-                    <td className="px-4 py-3">
-                      <div className="font-bold text-white flex items-center gap-1.5">
-                        <span>{s.storeName}</span>
-                        {s.storeId === store?.storeId && (
-                          <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[9px] font-bold">This Store</span>
+                globalHub.map(s => {
+                  const planName = s.subscriptionPlan || s.subscription?.planName || s.plan || '1.5 Month Free Trial';
+                  const slipImage = s.paymentSlip || s.subscription?.paymentSlip;
+                  const status = s.subscriptionStatus || s.subscription?.status || 'trial_active';
+
+                  return (
+                    <tr key={s.storeId} className={`hover:bg-slate-800/40 transition-colors ${s.storeId === store?.storeId ? 'bg-sky-500/10' : ''}`}>
+                      <td className="px-4 py-3">
+                        <div className="font-bold text-white flex items-center gap-1.5">
+                          <span>{s.storeName}</span>
+                          {s.storeId === store?.storeId && (
+                            <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[9px] font-bold">This Store</span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">{s.storeId}</div>
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-sky-300 uppercase border border-slate-700">
+                          {s.businessType}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3 space-y-0.5">
+                        <div className="font-bold text-slate-200 flex items-center gap-1">
+                          <User className="w-3 h-3 text-sky-400 shrink-0" />
+                          <span>{s.ownerName || 'N/A'}</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                          <Mail className="w-3 h-3 text-slate-400 shrink-0" />
+                          <span>{s.ownerEmail || 'N/A'}</span>
+                        </div>
+                        <div className="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                          <Phone className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{s.phone || 'N/A'}</span>
+                        </div>
+                        <div className="text-[10px] text-amber-300 flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-amber-400 shrink-0 stroke-[1.5]" />
+                          <span>{s.address || 'N/A'}</span>
+                        </div>
+                      </td>
+
+                      <td className="px-4 py-3 font-mono text-slate-300">
+                        {s.currencySymbol} ({s.currency}) | {s.taxRate}%
+                      </td>
+
+                      <td className="px-4 py-3 font-mono text-slate-400 text-[11px]">
+                        {new Date(s.registeredAt).toLocaleDateString()}
+                      </td>
+
+                      <td className="px-4 py-3 font-bold text-sky-300 text-[11px]">
+                        {planName}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        {slipImage ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedSlip(slipImage);
+                              setIsSlipModalOpen(true);
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold transition-all flex items-center gap-1"
+                          >
+                            <span>📷 View Slip</span>
+                          </button>
+                        ) : (
+                          <span className="text-[10px] text-slate-500 italic">No Slip Required</span>
                         )}
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">{s.storeId}</div>
-                    </td>
+                      </td>
 
-                    <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-sky-300 uppercase border border-slate-700">
-                        {s.businessType}
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-3 space-y-0.5">
-                      <div className="font-bold text-slate-200 flex items-center gap-1">
-                        <User className="w-3 h-3 text-sky-400 shrink-0" />
-                        <span>{s.ownerName || 'N/A'}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                        <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span>{s.ownerEmail || 'N/A'}</span>
-                      </div>
-                      <div className="text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
-                        <Phone className="w-3 h-3 text-emerald-400 shrink-0" />
-                        <span>{s.phone || 'N/A'}</span>
-                      </div>
-                      <div className="text-[10px] text-amber-300 flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-amber-400 shrink-0 stroke-[1.5]" />
-                        <span>{s.address || 'N/A'}</span>
-                      </div>
-                    </td>
-
-                    <td className="px-4 py-3 font-mono text-slate-300">
-                      {s.currencySymbol} ({s.currency}) | {s.taxRate}%
-                    </td>
-
-                    <td className="px-4 py-3 font-mono text-slate-400 text-[11px]">
-                      {new Date(s.registeredAt).toLocaleDateString()}
-                    </td>
-
-                    <td className="px-4 py-3 font-bold text-indigo-400 text-[11px]">
-                      {s.plan || 'NEXCART PRO'}
-                    </td>
-
-                    <td className="px-4 py-3">
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                        ACTIVE
-                      </span>
-                    </td>
-                  </tr>
-                ))
+                      <td className="px-4 py-3">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                          status === 'paid_active' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' :
+                          status === 'pending_verification' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse' :
+                          'bg-sky-500/20 text-sky-300 border-sky-500/40'
+                        }`}>
+                          {status.toUpperCase()}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -605,6 +635,45 @@ export const SuperAdminView = () => {
             >
               <CheckCircle2 className="w-4 h-4 text-emerald-200" />
               <span>Confirm & Install Now</span>
+            </button>
+          </div>
+        </div>
+      </Modal>
+      {/* MODAL 4: Shopkeeper Payment Slip Proof Viewer */}
+      <Modal
+        isOpen={isSlipModalOpen}
+        onClose={() => {
+          setIsSlipModalOpen(false);
+          setSelectedSlip(null);
+        }}
+        title="Shopkeeper Subscription Payment Proof Slip"
+        maxWidth="max-w-xl"
+      >
+        <div className="space-y-4">
+          {selectedSlip ? (
+            <div className="rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center p-2 max-h-[70vh]">
+              <img
+                src={selectedSlip}
+                alt="Payment Slip Proof"
+                className="max-w-full max-h-[65vh] object-contain rounded-lg"
+              />
+            </div>
+          ) : (
+            <div className="p-8 text-center text-xs text-slate-400">
+              No Payment Slip Image Found
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsSlipModalOpen(false);
+                setSelectedSlip(null);
+              }}
+              className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white border border-slate-700"
+            >
+              Close Proof Viewer
             </button>
           </div>
         </div>

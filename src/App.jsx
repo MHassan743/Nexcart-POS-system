@@ -15,13 +15,14 @@ import { ReportsView } from './views/ReportsView.jsx';
 import { AuditView } from './views/AuditView.jsx';
 import { SuperAdminView } from './views/SuperAdminView.jsx';
 import { SettingsView } from './views/SettingsView.jsx';
-import { ReturnsView } from './views/ReturnsView.jsx';
+import { PricingModal } from './components/PricingModal.jsx';
 
 import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
 
 const MainLayout = () => {
-  const { user, loginWithPin } = useAuth();
+  const { user, store, loginWithPin, updateSubscription } = useAuth();
   const [activeTab, setActiveTab] = useState('pos');
+  const [isPricingOpen, setIsPricingOpen] = useState(!store?.subscription?.planId);
 
   // Quick PIN Switcher Modal State
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -229,6 +230,17 @@ const MainLayout = () => {
           </button>
         </form>
       </Modal>
+
+      {/* Pricing & Subscription Modal */}
+      <PricingModal
+        isOpen={isPricingOpen}
+        onClose={() => setIsPricingOpen(false)}
+        currentSubscription={store?.subscription}
+        onSelectPlan={(subscriptionData) => {
+          updateSubscription(subscriptionData);
+          setIsPricingOpen(false);
+        }}
+      />
     </div>
   );
 };
