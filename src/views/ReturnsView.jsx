@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { Modal } from '../components/Modal.jsx';
 import { AlertModal } from '../components/AlertModal.jsx';
 import { DB } from '../services/db.js';
+import { printReceipt } from '../utils/printReceipt.js';
 import {
   RefreshCw,
   Search,

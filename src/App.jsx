@@ -15,6 +15,7 @@ import { ReportsView } from './views/ReportsView.jsx';
 import { AuditView } from './views/AuditView.jsx';
 import { SuperAdminView } from './views/SuperAdminView.jsx';
 import { SettingsView } from './views/SettingsView.jsx';
+import { ReturnsView } from './views/ReturnsView.jsx';
 import { PricingModal } from './components/PricingModal.jsx';
 
 import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
