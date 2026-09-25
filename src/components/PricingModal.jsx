@@ -98,7 +98,7 @@ export const PRICING_PLANS = [
     badge: 'BEST VALUE - SAVE Rs 32,400 (45% OFF)',
     price: 'Rs 39,600',
     period: '/ year',
-    highlight: 'Setup Rs 12,000 + Rs 5,000×12 = Rs 72,000 ➔ Discounted to Rs 39,600!',
+    highlight: 'Rs 39,600/year + Rs 12,000 one-time setup = Rs 51,600 first year total',
     features: [
       'Everything in Monthly Plan',
       'Save Rs 32,400 — 45% Annual Discount',
@@ -106,7 +106,7 @@ export const PRICING_PLANS = [
       'Free Business Onboarding Support',
       'Guaranteed Zero Price Increase for 1 Year'
     ],
-    note: 'Best annual package for long-term retail shops. One-time setup fee included. Pay once, run for 12 months!',
+    note: 'First year total: Rs 39,600 annual fee + Rs 12,000 one-time setup = Rs 51,600. From 2nd year onwards, only Rs 39,600/year.',
     isPopular: false,
     requiresProof: true
   }

@@ -1,6 +1,16 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+// When packaged, set extra DLL search paths so Windows can find
+// ffmpeg.dll, libGLESv2.dll, etc. from process.resourcesPath
+if (app.isPackaged) {
+  // resourcesPath = C:\Users\...\AppData\Local\Programs\Nexcart POS System\resources
+  const resourcesPath = process.resourcesPath;
+  // Node's path is already set, but we tell Chromium where to look for its DLLs
+  app.commandLine.appendSwitch('no-sandbox');
+  process.env.PATH = resourcesPath + ';' + (process.env.PATH || '');
+}
+
 function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 1280,

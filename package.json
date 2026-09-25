@@ -9,30 +9,59 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:exe": "npm run build && electron-builder --win nsis",
+    "build:exe": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --win nsis",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "build": {
     "appId": "com.nexcart.pos",
     "productName": "Nexcart POS System",
+    "asar": true,
+    "asarUnpack": [
+      "**/*.dll",
+      "**/*.node",
+      "**/node_modules/electron/dist/**"
+    ],
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "!node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/electron/dist/ffmpeg.dll",
+        "to": "ffmpeg.dll"
+      },
+      {
+        "from": "node_modules/electron/dist/libGLESv2.dll",
+        "to": "libGLESv2.dll"
+      },
+      {
+        "from": "node_modules/electron/dist/libEGL.dll",
+        "to": "libEGL.dll"
+      },
+      {
+        "from": "node_modules/electron/dist/d3dcompiler_47.dll",
+        "to": "d3dcompiler_47.dll"
+      },
+      {
+        "from": "node_modules/electron/dist/vk_swiftshader.dll",
+        "to": "vk_swiftshader.dll"
+      },
+      {
+        "from": "node_modules/electron/dist/vulkan-1.dll",
+        "to": "vulkan-1.dll"
+      }
     ],
     "win": {
+      "sign": null,
+      "signAndEditExecutable": false,
       "target": [
         {
           "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
           "arch": [
             "x64"
           ]
@@ -63,6 +92,7 @@
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.18",
+    "cross-env": "^10.1.0",
     "electron": "^28.3.3",
     "electron-builder": "^24.13.3",
     "postcss": "^8.4.35",
