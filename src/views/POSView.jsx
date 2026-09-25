@@ -223,8 +223,8 @@ export const POSView = () => {
           ))}
         </div>
 
-        {/* Product Cards Grid */}
-        <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+        {/* Product Cards Grid (Micro Size Compact Layout) */}
+        <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6 gap-2 auto-rows-max items-start">
           {filteredProducts.map(product => {
             const isLowStock = product.stockQuantity <= (product.reorderThreshold || 10);
             const isOutStock = product.stockQuantity <= 0;
@@ -233,23 +233,23 @@ export const POSView = () => {
               <div
                 key={product.id}
                 onClick={() => !isOutStock && addToCart(product)}
-                className={`glass-panel-interactive rounded-2xl p-3 flex flex-col justify-between cursor-pointer group relative overflow-hidden select-none ${
+                className={`glass-panel-interactive rounded-xl p-2 flex flex-col justify-between cursor-pointer group relative overflow-hidden select-none hover:border-sky-500/50 transition-all ${
                   isOutStock ? 'opacity-50 cursor-not-allowed border-rose-500/30' : ''
                 }`}
               >
                 {/* Out / Low Stock Badge */}
                 {isOutStock ? (
-                  <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[9px] font-bold bg-rose-500 text-white uppercase z-10">
-                    Out of Stock
+                  <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-rose-600 text-white uppercase z-10 shadow">
+                    Out
                   </span>
                 ) : isLowStock ? (
-                  <span className="absolute top-2 right-2 px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 badge-pulse-red z-10">
-                    Low Stock: {product.stockQuantity}
+                  <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-amber-500/30 text-amber-300 border border-amber-500/40 z-10">
+                    Low: {product.stockQuantity}
                   </span>
                 ) : null}
 
-                {/* Product Thumbnail Image */}
-                <div className="h-28 w-full rounded-xl bg-slate-950 overflow-hidden mb-2 relative flex items-center justify-center">
+                {/* Product Thumbnail Image (Compact Micro height) */}
+                <div className="h-16 w-full rounded-lg bg-slate-950 overflow-hidden mb-1.5 relative flex items-center justify-center shrink-0">
                   {product.image ? (
                     <img 
                       src={product.image} 
@@ -257,27 +257,27 @@ export const POSView = () => {
                       className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" 
                     />
                   ) : (
-                    <div className="text-slate-600 font-heading font-extrabold text-2xl">
+                    <div className="text-slate-600 font-heading font-extrabold text-sm">
                       {product.name.slice(0, 2).toUpperCase()}
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-                  <span className="absolute bottom-1 left-2 text-[10px] text-slate-300 font-mono">
-                    SKU: {product.sku}
+                  <span className="absolute bottom-0.5 left-1 text-[8px] text-slate-400 font-mono truncate max-w-[90%]">
+                    {product.sku}
                   </span>
                 </div>
 
                 {/* Product Details */}
-                <div>
-                  <h4 className="text-xs font-bold text-slate-100 group-hover:text-sky-300 transition-colors line-clamp-2 leading-tight">
+                <div className="flex flex-col justify-between flex-1 min-h-[36px]">
+                  <h4 className="text-[11px] font-bold text-slate-100 group-hover:text-sky-300 transition-colors line-clamp-1 leading-tight" title={product.name}>
                     {product.name}
                   </h4>
-                  <div className="mt-2 flex items-center justify-between">
-                    <div className="font-heading font-extrabold text-sm text-sky-400">
+                  <div className="mt-1 flex items-center justify-between gap-1">
+                    <div className="font-heading font-extrabold text-xs text-sky-400">
                       {store?.currencySymbol}{product.salePrice.toFixed(2)}
                     </div>
-                    <span className="text-[10px] text-slate-400 font-medium">
-                      Stock: {product.stockQuantity}
+                    <span className="text-[9px] text-slate-400 font-medium">
+                      Stk: {product.stockQuantity}
                     </span>
                   </div>
                 </div>
