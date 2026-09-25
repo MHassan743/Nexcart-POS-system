@@ -107,11 +107,11 @@ export const SuperAdminView = () => {
   };
 
   const handleDownloadExeSetup = () => {
-    // Download full packaged win.zip to prevent missing ffmpeg.dll error
-    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/download/v1.0.0/win.zip';
+    // Download 100% native Windows standalone binary installer Setup (.exe)
+    const GITHUB_RELEASE_URL = 'https://github.com/MHassan743/Nexcart-POS-system/releases/download/v1.0.0/Nexcart-POS-Setup-v1.0.exe';
     const link = document.createElement('a');
     link.href = GITHUB_RELEASE_URL;
-    link.download = 'Nexcart-POS-Windows.zip';
+    link.download = 'Nexcart-POS-Setup-v1.0.exe';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
