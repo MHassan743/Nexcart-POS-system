@@ -18,38 +18,7 @@ export const SalesmenView = () => {
   const { transactions } = usePOS();
   const currency = store?.currencySymbol || 'Rs. ';
 
-  const [salesmen, setSalesmen] = useState([
-    {
-      id: 'sal-1',
-      name: 'Muhammad Usman',
-      phone: '+92 301 5551234',
-      role: 'Senior Sales Executive',
-      commissionRate: 2.5, // 2.5%
-      totalSalesVolume: 420000,
-      totalCommissionEarned: 10500,
-      status: 'Active'
-    },
-    {
-      id: 'sal-2',
-      name: 'Ali Raza',
-      phone: '+92 322 8887766',
-      role: 'Counter Sales Representative',
-      commissionRate: 2.0, // 2.0%
-      totalSalesVolume: 280000,
-      totalCommissionEarned: 5600,
-      status: 'Active'
-    },
-    {
-      id: 'sal-3',
-      name: 'Zia Ul Haq',
-      phone: '+92 334 1122334',
-      role: 'Junior Sales Officer',
-      commissionRate: 1.5, // 1.5%
-      totalSalesVolume: 150000,
-      totalCommissionEarned: 2250,
-      status: 'Active'
-    }
-  ]);
+  const [salesmen, setSalesmen] = useState([]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newSalesman, setNewSalesman] = useState({

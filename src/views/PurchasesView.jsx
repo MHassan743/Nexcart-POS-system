@@ -20,7 +20,7 @@ export const PurchasesView = () => {
   const currency = store?.currencySymbol || 'Rs. ';
 
   const [supplierInvoiceNo, setSupplierInvoiceNo] = useState('');
-  const [selectedSupplier, setSelectedSupplier] = useState('PharmaCare Wholesalers Ltd');
+  const [selectedSupplier, setSelectedSupplier] = useState('');
   const [purchaseDate, setPurchaseDate] = useState(new Date().toISOString().split('T')[0]);
   const [purchaseItems, setPurchaseItems] = useState([]);
 
@@ -32,17 +32,7 @@ export const PurchasesView = () => {
   const [batchNo, setBatchNo] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
 
-  const [purchaseHistory, setPurchaseHistory] = useState([
-    {
-      id: 'pur-101',
-      invoiceNo: 'INV-PH-9921',
-      supplier: 'PharmaCare Wholesalers Ltd',
-      date: '2026-09-24',
-      totalCost: 125000,
-      itemCount: 4,
-      status: 'Received & Stocked'
-    }
-  ]);
+  const [purchaseHistory, setPurchaseHistory] = useState([]);
 
   const handleAddItem = (e) => {
     e.preventDefault();

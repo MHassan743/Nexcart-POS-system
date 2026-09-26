@@ -21,47 +21,7 @@ export const SuppliersView = () => {
   const { store } = useAuth();
   const currency = store?.currencySymbol || 'Rs. ';
 
-  const [suppliers, setSuppliers] = useState([
-    {
-      id: 'sup-1',
-      name: 'PharmaCare Wholesalers Ltd',
-      contactPerson: 'Zubair Ahmed',
-      phone: '+92 300 1234567',
-      email: 'orders@pharmacare.pk',
-      address: 'Industrial Area, Sector I-9, Islamabad',
-      category: 'Pharmaceuticals',
-      totalPurchases: 450000,
-      totalPaid: 380000,
-      payableBalance: 70000,
-      lastOrderDate: '2026-09-20'
-    },
-    {
-      id: 'sup-2',
-      name: 'Nestle Pakistan Distribution',
-      contactPerson: 'Imran Khan',
-      phone: '+92 321 9876543',
-      email: 'sales@nestle-dist.com',
-      address: 'Main Multan Road, Lahore',
-      category: 'Grocery & Beverages',
-      totalPurchases: 890000,
-      totalPaid: 890000,
-      payableBalance: 0,
-      lastOrderDate: '2026-09-24'
-    },
-    {
-      id: 'sup-3',
-      name: 'Crown Electronics & Mobile Supply',
-      contactPerson: 'Tariq Mehmood',
-      phone: '+92 333 4445556',
-      email: 'tariq@crownelectronics.pk',
-      address: 'Hafeez Center, Gulberg III, Lahore',
-      category: 'Electronics & Mobiles',
-      totalPurchases: 1250000,
-      totalPaid: 1100000,
-      payableBalance: 150000,
-      lastOrderDate: '2026-09-22'
-    }
-  ]);
+  const [suppliers, setSuppliers] = useState([]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

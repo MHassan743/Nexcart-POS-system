@@ -17,38 +17,7 @@ export const DiscountsView = () => {
   const { store } = useAuth();
   const currency = store?.currencySymbol || 'Rs. ';
 
-  const [discounts, setDiscounts] = useState([
-    {
-      id: 'disc-1',
-      title: 'Grand Opening Special',
-      code: 'WELCOME10',
-      type: 'PERCENTAGE', // 'PERCENTAGE' | 'FLAT'
-      value: 10,
-      minSubtotal: 1000,
-      expiryDate: '2026-12-31',
-      status: 'Active'
-    },
-    {
-      id: 'disc-2',
-      title: 'Bulk Cart Discount',
-      code: 'BULK500',
-      type: 'FLAT',
-      value: 500,
-      minSubtotal: 5000,
-      expiryDate: '2026-10-31',
-      status: 'Active'
-    },
-    {
-      id: 'disc-3',
-      title: 'VIP Khaata Customer Special',
-      code: 'VIP15',
-      type: 'PERCENTAGE',
-      value: 15,
-      minSubtotal: 2000,
-      expiryDate: '2026-11-15',
-      status: 'Active'
-    }
-  ]);
+  const [discounts, setDiscounts] = useState([]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newDisc, setNewDisc] = useState({

@@ -21,35 +21,7 @@ export const ExpensesView = () => {
   const currency = store?.currencySymbol || 'Rs. ';
 
   const [activeSubTab, setActiveSubTab] = useState('operational'); // 'operational' | 'purchases'
-  const [expenseList, setExpenseList] = useState([
-    {
-      id: 'exp-1',
-      category: 'Electricity Bill',
-      amount: 14500,
-      description: 'Shop Electricity Bill September 2026',
-      date: '2026-09-24',
-      isRecurring: true,
-      type: 'Operational'
-    },
-    {
-      id: 'exp-2',
-      category: 'Shop Rent',
-      amount: 45000,
-      description: 'Monthly Premises Lease Payment',
-      date: '2026-09-01',
-      isRecurring: true,
-      type: 'Operational'
-    },
-    {
-      id: 'exp-3',
-      category: 'Staff Tea & Refreshments',
-      amount: 2500,
-      description: 'Weekly tea & snacks for store sales team',
-      date: '2026-09-25',
-      isRecurring: false,
-      type: 'Operational'
-    }
-  ]);
+  const [expenseList, setExpenseList] = useState([]);
 
   // Quick Add Form
   const [category, setCategory] = useState('Electricity Bill');
