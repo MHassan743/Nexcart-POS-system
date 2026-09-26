@@ -29,7 +29,7 @@ const MainLayout = () => {
   const { user, store, loginWithPin, updateSubscription } = useAuth();
   const [activeTab, setActiveTab] = useState('pos');
 
-  const subStatus = (store?.subscriptionStatus || store?.subscription?.status || store?.status || 'trial_active').toString().toLowerCase();
+  const subStatus = (store?.subscriptionStatus || store?.subscription?.status || store?.status || 'pending_verification').toString().toLowerCase();
   const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName || store?.plan;
 
   const isPending = subStatus === 'pending_verification';

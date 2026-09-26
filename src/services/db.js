@@ -70,8 +70,14 @@ export const DB = {
         currencySymbol: '₨',
         taxRate: 0,
         registeredAt: new Date().toISOString(),
-        plan: 'NEXCART PRO',
-        status: 'ACTIVE'
+        plan: null,
+        subscriptionPlan: null,
+        subscriptionStatus: 'pending_verification',
+        status: 'PENDING_VERIFICATION',
+        subscription: {
+          status: 'pending_verification',
+          planName: null
+        }
       };
       setStorage(STORAGE_KEYS.CURRENT_STORE, defaultStore);
     }
@@ -172,8 +178,14 @@ export const DB = {
       currencySymbol: storeData.currencySymbol || businessConfig.currencySymbol,
       taxRate: storeData.taxRate !== undefined ? Number(storeData.taxRate) : businessConfig.defaultTaxRate,
       registeredAt: new Date().toISOString(),
-      plan: 'NEXCART PRO',
-      status: 'ACTIVE',
+      plan: null,
+      subscriptionPlan: null,
+      subscriptionStatus: 'pending_verification',
+      status: 'PENDING_VERIFICATION',
+      subscription: {
+        status: 'pending_verification',
+        planName: null
+      },
       totalTransactionsCount: 0,
       totalSalesVolume: 0
     };
