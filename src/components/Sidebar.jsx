@@ -115,6 +115,21 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
     }
   ];
 
+  // Calculate dynamic license expiry date (45 days for trial or stored subscription date)
+  const getFormattedExpiryDate = () => {
+    const rawDate = store?.trialEndDate || store?.subscription?.trialEndDate || store?.subscriptionExpiry;
+    if (rawDate) {
+      try {
+        const d = new Date(rawDate);
+        return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch (e) {}
+    }
+    // Default 45 days (1.5 months) from registration date
+    const regDate = store?.registeredAt ? new Date(store.registeredAt) : new Date();
+    const expiry = new Date(regDate.getTime() + 45 * 24 * 60 * 60 * 1000);
+    return expiry.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+
   return (
     <aside className="w-64 bg-[#0b0f19] border-r border-slate-800/80 flex flex-col h-full z-20 shrink-0 select-none shadow-2xl">
       {/* Sidebar Header (Store Name & Account Indicator - Doxfen Style) */}
@@ -192,7 +207,7 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
             <span className="flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Licensed
             </span>
-            <span className="text-slate-400 font-mono text-[9px]">Expires 20 Dec 2026</span>
+            <span className="text-slate-400 font-mono text-[9px]">Expires {getFormattedExpiryDate()}</span>
           </div>
         </div>
 
