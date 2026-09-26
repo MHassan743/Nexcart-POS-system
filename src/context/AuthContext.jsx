@@ -22,17 +22,19 @@ export const AuthProvider = ({ children }) => {
       const updatedHub = Array.from(storeMap.values());
       setGlobalHub(updatedHub);
 
-      // If current store status was updated on cloud by Super Admin, update local store state
+      // If current store status or feature permissions were updated on cloud by Super Admin, update local store state
       const currentStore = DB.getStore();
       if (currentStore?.storeId) {
         const cloudMatch = cloudStores.find(c => c.storeId === currentStore.storeId);
-        if (cloudMatch && cloudMatch.subscriptionStatus && cloudMatch.subscriptionStatus !== currentStore.subscriptionStatus) {
+        if (cloudMatch) {
           const updated = DB.updateStore({
-            subscriptionStatus: cloudMatch.subscriptionStatus,
+            subscriptionStatus: cloudMatch.subscriptionStatus || currentStore.subscriptionStatus,
             subscriptionPlan: cloudMatch.subscriptionPlan || currentStore.subscriptionPlan,
+            featurePermissions: cloudMatch.featurePermissions || currentStore.featurePermissions || {},
+            featureRequests: cloudMatch.featureRequests || currentStore.featureRequests || {},
             subscription: {
               ...(currentStore.subscription || {}),
-              status: cloudMatch.subscriptionStatus,
+              status: cloudMatch.subscriptionStatus || currentStore.subscriptionStatus,
               planName: cloudMatch.subscriptionPlan || currentStore.subscriptionPlan
             }
           });

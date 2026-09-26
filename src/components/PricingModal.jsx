@@ -114,9 +114,9 @@ export const PRICING_PLANS = [
     id: 'premium',
     name: 'Premium All-Inclusive Plan',
     badge: 'ALL FEATURES UNLOCKED',
-    price: 'Rs 75,000',
-    period: '/ year',
-    highlight: 'Rs 75,000/year + Rs 17,000 setup = Rs 92,000 first year total',
+    price: 'Rs 20,000',
+    period: '/ month',
+    highlight: 'Monthly: Rs 41,000 first month total | Yearly: Rs 200,000/year (Save Rs 40,000)',
     features: [
       'Includes All Core POS Features',
       'Suppliers Management & Payables',
@@ -142,7 +142,7 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  if (!isOpen) return null;
+  // Early return if not open placed after hooks below
 
   const handleCopy = (text, fieldName) => {
     navigator.clipboard.writeText(text);
@@ -265,7 +265,60 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
     }
   }, [hasAlreadyUsedTrial]);
 
+  if (!isOpen) return null;
+
+  const getTransferDetails = (planId, cycle) => {
+    if (planId === 'trial') {
+      return {
+        name: '1 Month Free Trial',
+        priceLabel: 'Rs 0',
+        transferTotal: 'Rs 0',
+        transferNote: 'Zero Cost (30 Days Free Trial)'
+      };
+    }
+    if (planId === 'monthly') {
+      return {
+        name: 'Monthly Maintenance Plan',
+        priceLabel: 'Rs 10,000 / mo',
+        transferTotal: 'Rs 27,000',
+        transferNote: 'Rs 10,000/mo fee + Rs 17,000 setup = Rs 27,000 first month total'
+      };
+    }
+    if (planId === 'annual') {
+      return {
+        name: 'Annual Discounted Plan',
+        priceLabel: 'Rs 44,500 / yr',
+        transferTotal: 'Rs 61,500',
+        transferNote: 'Rs 44,500/yr annual fee + Rs 17,000 setup = Rs 61,500 first year total'
+      };
+    }
+    if (planId === 'premium') {
+      if (cycle === 'monthly') {
+        return {
+          name: 'Premium All-Inclusive Plan (Monthly)',
+          priceLabel: 'Rs 20,000 / mo',
+          transferTotal: 'Rs 41,000',
+          transferNote: 'Rs 20,000/mo fee + Rs 21,000 setup = Rs 41,000 first month total'
+        };
+      } else {
+        return {
+          name: 'Premium All-Inclusive Plan (Yearly)',
+          priceLabel: 'Rs 200,000 / yr',
+          transferTotal: 'Rs 200,000',
+          transferNote: 'Rs 200,000 annual fee (Save Rs 40,000 OFF standard rate)'
+        };
+      }
+    }
+    return {
+      name: 'Monthly Maintenance Plan',
+      priceLabel: 'Rs 10,000 / mo',
+      transferTotal: 'Rs 27,000',
+      transferNote: 'Rs 10,000/mo fee + Rs 17,000 setup = Rs 27,000 first month total'
+    };
+  };
+
   const currentPlanObj = PRICING_PLANS.find(p => p.id === selectedPlanId) || PRICING_PLANS[1];
+  const currentTransfer = getTransferDetails(selectedPlanId, premiumCycle);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
@@ -469,12 +522,14 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
           {/* Payment Section (If Paid Plan or Claim Verification) */}
           {currentPlanObj.requiresProof && (
             <div className="p-5 rounded-xl bg-slate-800/60 border border-slate-700 space-y-4 animate-fade-in">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-700">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-700 gap-2">
                 <div className="flex items-center gap-2 text-sm font-bold text-white">
                   <CreditCard className="w-4 h-4 text-sky-400" />
                   <span>Official Online Payment Gateway Accounts</span>
                 </div>
-                <span className="text-xs text-slate-400">Transfer total <strong className="text-white">{currentPlanObj.price}</strong> to any official account below:</span>
+                <div className="text-xs text-slate-400">
+                  Transfer total <strong className="text-amber-300 text-sm font-extrabold">{currentTransfer.transferTotal}</strong> ({currentTransfer.transferNote}) to any account below:
+                </div>
               </div>
 
               {/* Payment Tab Selector */}
@@ -615,7 +670,7 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
           <div className="flex items-center justify-between pt-4 border-t border-slate-800">
             <div className="text-xs text-slate-400 flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-amber-400" />
-              <span>Selected: <strong className="text-white">{currentPlanObj.name} ({currentPlanObj.price})</strong></span>
+              <span>Selected: <strong className="text-white">{currentTransfer.name} — Transfer Total: {currentTransfer.transferTotal}</strong></span>
             </div>
 
             <div className="flex items-center gap-2">

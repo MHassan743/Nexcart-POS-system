@@ -61,14 +61,14 @@ export async function fetchCloudHub() {
 }
 
 /**
- * SuperAdmin se store subscription status approve/reject/block karo
+ * SuperAdmin se store subscription status approve/reject/block karo & feature permissions update karo
  */
-export async function approveStoreSubscription(storeId, subscriptionStatus, subscriptionPlan, featurePermissions) {
+export async function approveStoreSubscription(storeId, subscriptionStatus, subscriptionPlan, featurePermissions, featureRequests) {
   try {
     const res = await fetch(`${API_BASE}/api/stores`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ storeId, subscriptionStatus, subscriptionPlan, featurePermissions })
+      body: JSON.stringify({ storeId, subscriptionStatus, subscriptionPlan, featurePermissions, featureRequests })
     });
     const json = await res.json();
     return json;

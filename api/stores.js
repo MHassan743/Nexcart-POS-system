@@ -4,7 +4,7 @@ import Store from './models/Store.js';
 // CORS headers — required for browser requests from Vercel frontend
 const headers = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
   'Content-Type': 'application/json',
 };
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, stores });
     }
 
-    // POST /api/stores — Register a new store (from shopkeeper PC)
+    // POST /api/stores — Register or update a store (from shopkeeper PC)
     if (req.method === 'POST') {
       const storeData = req.body;
 
@@ -44,15 +44,18 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, store });
     }
 
-    // PUT /api/stores — SuperAdmin Approval & Status Update
+    // PUT /api/stores — SuperAdmin Approval & Feature Permissions Update
     if (req.method === 'PUT') {
-      const { storeId, subscriptionStatus, subscriptionPlan } = req.body;
-      if (!storeId || !subscriptionStatus) {
-        return res.status(400).json({ success: false, message: 'storeId and subscriptionStatus are required' });
+      const { storeId, subscriptionStatus, subscriptionPlan, featurePermissions, featureRequests } = req.body;
+      if (!storeId) {
+        return res.status(400).json({ success: false, message: 'storeId is required' });
       }
 
-      const updatePayload = { subscriptionStatus };
+      const updatePayload = {};
+      if (subscriptionStatus) updatePayload.subscriptionStatus = subscriptionStatus;
       if (subscriptionPlan) updatePayload.subscriptionPlan = subscriptionPlan;
+      if (featurePermissions !== undefined) updatePayload.featurePermissions = featurePermissions;
+      if (featureRequests !== undefined) updatePayload.featureRequests = featureRequests;
 
       const store = await Store.findOneAndUpdate(
         { storeId },

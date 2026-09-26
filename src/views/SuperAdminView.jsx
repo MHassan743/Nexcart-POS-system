@@ -202,12 +202,32 @@ export const SuperAdminView = () => {
     setIsRefreshing(true);
     const planName = selectedStoreForFeatures.subscriptionPlan || selectedStoreForFeatures.subscription?.planName || 'Monthly Maintenance Plan';
     const status = selectedStoreForFeatures.subscriptionStatus || 'paid_active';
-    await approveStoreSubscription(selectedStoreForFeatures.storeId, status, planName, tempPermissions);
+
+    // Clear pending requests for unlocked features
+    const currentRequests = selectedStoreForFeatures.featureRequests || {};
+    const updatedRequests = { ...currentRequests };
+    Object.keys(tempPermissions).forEach(featId => {
+      if (tempPermissions[featId] && updatedRequests[featId] === 'pending') {
+        updatedRequests[featId] = 'approved';
+      }
+    });
+
+    await approveStoreSubscription(
+      selectedStoreForFeatures.storeId, 
+      status, 
+      planName, 
+      tempPermissions, 
+      updatedRequests
+    );
     
     // Also update local store if it matches
     if (selectedStoreForFeatures.storeId === store?.storeId) {
       const currentLocal = DB.getStore();
-      DB.updateStore({ ...currentLocal, featurePermissions: tempPermissions });
+      DB.updateStore({ 
+        ...currentLocal, 
+        featurePermissions: tempPermissions,
+        featureRequests: updatedRequests 
+      });
     }
 
     if (refetchGlobalHub) {
@@ -397,11 +417,20 @@ export const SuperAdminView = () => {
                   return (
                     <tr key={s.storeId} className={`hover:bg-slate-800/40 transition-colors ${s.storeId === store?.storeId ? 'bg-sky-500/10' : ''}`}>
                       <td className="px-4 py-3">
-                        <div className="font-bold text-white flex items-center gap-1.5">
+                        <div className="font-bold text-white flex items-center gap-1.5 flex-wrap">
                           <span>{s.storeName}</span>
                           {s.storeId === store?.storeId && (
                             <span className="px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 text-[9px] font-bold">This Store</span>
                           )}
+                          {(() => {
+                            const pendingList = Object.keys(s.featureRequests || {}).filter(k => s.featureRequests[k] === 'pending');
+                            if (pendingList.length === 0) return null;
+                            return (
+                              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[9px] font-bold animate-pulse flex items-center gap-1">
+                                📩 {pendingList.length} Request{pendingList.length > 1 ? 's' : ''} Pending
+                              </span>
+                            );
+                          })()}
                         </div>
                         <div className="text-[10px] text-slate-400 font-mono">{s.storeId}</div>
                       </td>
@@ -473,14 +502,28 @@ export const SuperAdminView = () => {
 
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => handleOpenFeatureModal(s)}
-                            className="px-2 py-1 rounded bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1"
-                            title="Manage feature lock permissions for this store"
-                          >
-                            <span>🔐 Features</span>
-                          </button>
+                          {(() => {
+                            const pendingCount = Object.keys(s.featureRequests || {}).filter(k => s.featureRequests[k] === 'pending').length;
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenFeatureModal(s)}
+                                className={`px-2 py-1 rounded text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1 border ${
+                                  pendingCount > 0 
+                                    ? 'bg-amber-500/30 hover:bg-amber-500/50 text-amber-200 border-amber-500/50 shadow-glow-amber animate-pulse'
+                                    : 'bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border-purple-500/40'
+                                }`}
+                                title="Manage feature lock permissions for this store"
+                              >
+                                <span>🔐 Features</span>
+                                {pendingCount > 0 && (
+                                  <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 font-extrabold text-[9px]">
+                                    {pendingCount}
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })()}
                           {status !== 'paid_active' && (
                             <button
                               type="button"
@@ -803,10 +846,20 @@ export const SuperAdminView = () => {
               { id: 'outdoor_medicine', label: 'Outdoor Medicine Sourcing (Medical)', desc: 'External chemist medicine sourcing & billing' }
             ].map(feat => {
               const isChecked = Boolean(tempPermissions[feat.id]);
+              const isRequested = selectedStoreForFeatures?.featureRequests?.[feat.id] === 'pending';
               return (
-                <div key={feat.id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs font-bold text-white">{feat.label}</div>
+                <div key={feat.id} className={`p-3 rounded-xl border flex items-center justify-between gap-3 transition-colors ${
+                  isRequested ? 'bg-amber-950/30 border-amber-500/40' : 'bg-slate-900 border-slate-800'
+                }`}>
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      <span>{feat.label}</span>
+                      {isRequested && (
+                        <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse flex items-center gap-1">
+                          ⏳ Requested by Shopkeeper
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-400">{feat.desc}</div>
                   </div>
                   <button
@@ -814,7 +867,7 @@ export const SuperAdminView = () => {
                     onClick={() => {
                       setTempPermissions(prev => ({ ...prev, [feat.id]: !prev[feat.id] }));
                     }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                       isChecked
                         ? 'bg-emerald-600 text-white shadow-md'
                         : 'bg-slate-800 text-slate-400 hover:bg-slate-700'

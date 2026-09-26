@@ -18,6 +18,8 @@ const StoreSchema = new mongoose.Schema({
   trialEndDate:       { type: String, default: '' },
   paymentSlip:        { type: String, default: '' },
   subscription:       { type: Object, default: {} },
+  featurePermissions: { type: Object, default: {} },
+  featureRequests:    { type: Object, default: {} },
   totalTransactionsCount: { type: Number, default: 0 },
   totalSalesVolume:       { type: Number, default: 0 },
   registeredAt:  { type: String, default: () => new Date().toISOString() },
