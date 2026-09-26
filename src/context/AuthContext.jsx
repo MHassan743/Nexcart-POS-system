@@ -21,17 +21,31 @@ export const AuthProvider = ({ children }) => {
       cloudStores.forEach(s => storeMap.set(s.storeId, s));
       const updatedHub = Array.from(storeMap.values());
       setGlobalHub(updatedHub);
+      DB.setGlobalHub(updatedHub);
 
       // If current store status or feature permissions were updated on cloud by Super Admin, update local store state
       const currentStore = DB.getStore();
       if (currentStore?.storeId) {
-        const cloudMatch = cloudStores.find(c => c.storeId === currentStore.storeId);
+        const cloudMatch = cloudStores.find(c => c.storeId === currentStore.storeId || c.storeName === currentStore.storeName);
         if (cloudMatch) {
+          const hasCloudPerms = cloudMatch.featurePermissions && typeof cloudMatch.featurePermissions === 'object' && Object.keys(cloudMatch.featurePermissions).length > 0;
+          const hasCloudReqs = cloudMatch.featureRequests && typeof cloudMatch.featureRequests === 'object' && Object.keys(cloudMatch.featureRequests).length > 0;
+
+          const mergedPermissions = {
+            ...(currentStore.featurePermissions || {}),
+            ...(hasCloudPerms ? cloudMatch.featurePermissions : {})
+          };
+
+          const mergedRequests = {
+            ...(currentStore.featureRequests || {}),
+            ...(hasCloudReqs ? cloudMatch.featureRequests : {})
+          };
+
           const updated = DB.updateStore({
             subscriptionStatus: cloudMatch.subscriptionStatus || currentStore.subscriptionStatus,
             subscriptionPlan: cloudMatch.subscriptionPlan || currentStore.subscriptionPlan,
-            featurePermissions: cloudMatch.featurePermissions || currentStore.featurePermissions || {},
-            featureRequests: cloudMatch.featureRequests || currentStore.featureRequests || {},
+            featurePermissions: mergedPermissions,
+            featureRequests: mergedRequests,
             subscription: {
               ...(currentStore.subscription || {}),
               status: cloudMatch.subscriptionStatus || currentStore.subscriptionStatus,
@@ -55,8 +69,10 @@ export const AuthProvider = ({ children }) => {
     setStore(currentStore);
     setLoading(false);
 
-    // Initial hub load
+    // Initial hub load and background cloud sync interval (every 4s)
     refreshGlobalHub();
+    const interval = setInterval(refreshGlobalHub, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   // Quick Till PIN Login

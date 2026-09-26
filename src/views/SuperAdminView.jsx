@@ -220,14 +220,23 @@ export const SuperAdminView = () => {
       updatedRequests
     );
     
-    // Also update local store if it matches
-    if (selectedStoreForFeatures.storeId === store?.storeId) {
-      const currentLocal = DB.getStore();
-      DB.updateStore({ 
-        ...currentLocal, 
+    // Always update local store and global hub storage to ensure instant sync
+    const currentLocal = DB.getStore();
+    DB.updateStore({ 
+      ...currentLocal, 
+      featurePermissions: tempPermissions,
+      featureRequests: updatedRequests 
+    });
+
+    const localHub = DB.getGlobalHub();
+    const targetIdx = localHub.findIndex(s => s.storeId === selectedStoreForFeatures.storeId);
+    if (targetIdx !== -1) {
+      localHub[targetIdx] = {
+        ...localHub[targetIdx],
         featurePermissions: tempPermissions,
-        featureRequests: updatedRequests 
-      });
+        featureRequests: updatedRequests
+      };
+      DB.setGlobalHub(localHub);
     }
 
     if (refetchGlobalHub) {

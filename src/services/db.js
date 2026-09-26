@@ -229,6 +229,7 @@ export const DB = {
 
   // Nexcart Global Hub (Serverless Master Registry view for Super Admin)
   getGlobalHub: () => getStorage(STORAGE_KEYS.GLOBAL_HUB, []),
+  setGlobalHub: (hubData) => setStorage(STORAGE_KEYS.GLOBAL_HUB, hubData),
 
   // Active Session / User Auth
   getActiveUser: () => getStorage(STORAGE_KEYS.ACTIVE_USER, null),

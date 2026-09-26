@@ -44,8 +44,21 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
     const plan = (store?.subscriptionPlan || store?.subscription?.planId || store?.plan || '').toLowerCase();
     if (plan.includes('premium') || plan === 'premium') return true;
 
-    // Individual permission set by Super Admin
-    if (store?.featurePermissions && store.featurePermissions[featureId] === true) {
+    // 1. Individual permission set by Super Admin (React Store State)
+    if (store?.featurePermissions && Boolean(store.featurePermissions[featureId])) {
+      return true;
+    }
+
+    // 2. Direct DB storage check (Current Store)
+    const currentLocal = DB.getStore();
+    if (currentLocal?.featurePermissions && Boolean(currentLocal.featurePermissions[featureId])) {
+      return true;
+    }
+
+    // 3. Global Hub storage check (Master Registry)
+    const localHub = DB.getGlobalHub();
+    const matchInHub = localHub.find(s => s.storeId === currentLocal?.storeId || s.storeName === currentLocal?.storeName);
+    if (matchInHub?.featurePermissions && Boolean(matchInHub.featurePermissions[featureId])) {
       return true;
     }
 
