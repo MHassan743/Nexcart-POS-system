@@ -81,6 +81,21 @@ export const POSView = () => {
   const [newCustPhone, setNewCustPhone] = useState('');
   const [newCustBalance, setNewCustBalance] = useState('');
 
+  // Outdoor Medicine Sourcing Modal State (Medical Stores)
+  const [isOutdoorModalOpen, setIsOutdoorModalOpen] = useState(false);
+  const [outdoorMedName, setOutdoorMedName] = useState('');
+  const [outdoorVendorName, setOutdoorVendorName] = useState('');
+  const [outdoorCostPrice, setOutdoorCostPrice] = useState('');
+  const [outdoorSalePrice, setOutdoorSalePrice] = useState('');
+  const [outdoorQty, setOutdoorQty] = useState('1');
+  const [outdoorNote, setOutdoorNote] = useState('');
+
+  // Feature permission for Outdoor Medicine Sourcing
+  const isOutdoorUnlocked = Boolean(
+    (store?.subscriptionPlan || store?.subscription?.planId || '').toLowerCase().includes('premium') ||
+    store?.featurePermissions?.outdoor_medicine === true
+  );
+
   // Get dynamic categories list
   const categories = ['ALL', ...new Set(products.map(p => p.category))];
 
@@ -181,6 +196,32 @@ export const POSView = () => {
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
+            {/* Outdoor Medicine Sourcing Button (Medical Store Feature) */}
+            <button
+              onClick={() => {
+                if (!isOutdoorUnlocked) {
+                  setAlertModal({
+                    isOpen: true,
+                    title: 'Outdoor Medicine Feature Locked',
+                    message: 'Outdoor Medicine Sourcing is an enterprise add-on feature. Please upgrade to Premium Plan or request access from Super Admin.',
+                    type: 'warning'
+                  });
+                  return;
+                }
+                setIsOutdoorModalOpen(true);
+              }}
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border text-xs font-bold transition-all ${
+                isOutdoorUnlocked
+                  ? 'bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border-purple-500/40'
+                  : 'bg-slate-900 text-slate-500 border-slate-800'
+              }`}
+              title="Source medicines from outdoor chemists on demand"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>💊 Outdoor Sourcing</span>
+              {!isOutdoorUnlocked && <Lock className="w-3 h-3 text-amber-400 ml-0.5" />}
+            </button>
+
             {/* Live Barcode Scanner Button */}
             <button
               onClick={() => setIsScannerOpen(true)}
@@ -955,6 +996,135 @@ export const POSView = () => {
             className="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-xs font-bold text-white shadow-glow-sky"
           >
             Save & Select Customer
+          </button>
+        </form>
+      </Modal>
+
+      {/* 7. Outdoor Medicine Sourcing Modal (Medical Store Feature) */}
+      <Modal
+        isOpen={isOutdoorModalOpen}
+        onClose={() => setIsOutdoorModalOpen(false)}
+        title="💊 Source Outdoor Medicine (External Pharmacy/Vendor)"
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (!outdoorMedName || !outdoorSalePrice) return;
+          
+          const outdoorProduct = {
+            id: `outdoor-${Date.now()}`,
+            name: `${outdoorMedName} (Outdoor Sourced)`,
+            price: Number(outdoorSalePrice),
+            salePrice: Number(outdoorSalePrice),
+            costPrice: Number(outdoorCostPrice) || 0,
+            outdoorVendor: outdoorVendorName || 'Outdoor Chemist',
+            isOutdoorMedicine: true,
+            category: 'Outdoor Medicine',
+            note: outdoorNote || ''
+          };
+
+          // Add to POS cart
+          addToCart(outdoorProduct, Number(outdoorQty) || 1);
+          
+          // Reset form
+          setIsOutdoorModalOpen(false);
+          setOutdoorMedName('');
+          setOutdoorVendorName('');
+          setOutdoorCostPrice('');
+          setOutdoorSalePrice('');
+          setOutdoorQty('1');
+          setOutdoorNote('');
+        }} className="space-y-3">
+          <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-200 text-xs">
+            <div className="font-bold flex items-center gap-1.5 text-purple-300">
+              <Sparkles className="w-4 h-4 text-purple-400" />
+              <span>Medical Store Outdoor Sourcing</span>
+            </div>
+            <p className="text-[11px] text-slate-300 mt-1">
+              Quickly source out-of-stock medicines from external chemists and bill them directly to the customer's cart.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Medicine / Item Name *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Augmentin 625mg Tab"
+              value={outdoorMedName}
+              onChange={(e) => setOutdoorMedName(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-purple-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Outdoor Chemist / Supplier Name</label>
+            <input
+              type="text"
+              placeholder="e.g. Khyber Medical Hall / Vendor"
+              value={outdoorVendorName}
+              onChange={(e) => setOutdoorVendorName(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-purple-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Purchase Cost ({store?.currencySymbol})</label>
+              <input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={outdoorCostPrice}
+                onChange={(e) => setOutdoorCostPrice(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-amber-300 font-mono focus:outline-none focus:border-amber-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Customer Sale Price ({store?.currencySymbol}) *</label>
+              <input
+                type="number"
+                step="0.01"
+                required
+                placeholder="0.00"
+                value={outdoorSalePrice}
+                onChange={(e) => setOutdoorSalePrice(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Quantity</label>
+              <input
+                type="number"
+                min="1"
+                required
+                value={outdoorQty}
+                onChange={(e) => setOutdoorQty(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-purple-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-300 mb-1">Batch / Rx Note</label>
+              <input
+                type="text"
+                placeholder="e.g. Urgent Rx"
+                value={outdoorNote}
+                onChange={(e) => setOutdoorNote(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white focus:outline-none focus:border-purple-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs font-bold text-white shadow-lg transition-all active:scale-95"
+          >
+            ➕ Add Outdoor Medicine to Cart
           </button>
         </form>
       </Modal>

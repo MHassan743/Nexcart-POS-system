@@ -170,6 +170,54 @@ export const SuperAdminView = () => {
     a.click();
   };
 
+  // Feature Permissions Modal State
+  const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
+  const [selectedStoreForFeatures, setSelectedStoreForFeatures] = useState(null);
+  const [tempPermissions, setTempPermissions] = useState({
+    suppliers: false,
+    salesmen: false,
+    reconciliation: false,
+    audit: false,
+    reports: false,
+    outdoor_medicine: false
+  });
+
+  const handleOpenFeatureModal = (targetStore) => {
+    setSelectedStoreForFeatures(targetStore);
+    const existing = targetStore.featurePermissions || {};
+    const isPremium = (targetStore.subscriptionPlan || '').toLowerCase().includes('premium');
+    setTempPermissions({
+      suppliers: isPremium ? true : Boolean(existing.suppliers),
+      salesmen: isPremium ? true : Boolean(existing.salesmen),
+      reconciliation: isPremium ? true : Boolean(existing.reconciliation),
+      audit: isPremium ? true : Boolean(existing.audit),
+      reports: isPremium ? true : Boolean(existing.reports),
+      outdoor_medicine: isPremium ? true : Boolean(existing.outdoor_medicine)
+    });
+    setIsFeatureModalOpen(true);
+  };
+
+  const handleSaveFeaturePermissions = async () => {
+    if (!selectedStoreForFeatures) return;
+    setIsRefreshing(true);
+    const planName = selectedStoreForFeatures.subscriptionPlan || selectedStoreForFeatures.subscription?.planName || 'Monthly Maintenance Plan';
+    const status = selectedStoreForFeatures.subscriptionStatus || 'paid_active';
+    await approveStoreSubscription(selectedStoreForFeatures.storeId, status, planName, tempPermissions);
+    
+    // Also update local store if it matches
+    if (selectedStoreForFeatures.storeId === store?.storeId) {
+      const currentLocal = DB.getStore();
+      DB.updateStore({ ...currentLocal, featurePermissions: tempPermissions });
+    }
+
+    if (refetchGlobalHub) {
+      await refetchGlobalHub();
+    }
+    setIsFeatureModalOpen(false);
+    setSelectedStoreForFeatures(null);
+    setTimeout(() => setIsRefreshing(false), 600);
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Title Header */}
@@ -425,6 +473,14 @@ export const SuperAdminView = () => {
 
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenFeatureModal(s)}
+                            className="px-2 py-1 rounded bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 text-[10px] font-bold transition-all active:scale-95 flex items-center gap-1"
+                            title="Manage feature lock permissions for this store"
+                          >
+                            <span>🔐 Features</span>
+                          </button>
                           {status !== 'paid_active' && (
                             <button
                               type="button"
@@ -432,7 +488,7 @@ export const SuperAdminView = () => {
                               className="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold shadow transition-all active:scale-95"
                               title="Approve payment slip and grant full POS access"
                             >
-                              ✅ Approve & Activate
+                              ✅ Approve
                             </button>
                           )}
                           {status !== 'blocked' && (
@@ -711,6 +767,80 @@ export const SuperAdminView = () => {
               className="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white border border-slate-700"
             >
               Close Proof Viewer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* MODAL 5: Super Admin Feature Lock Permission Controls */}
+      <Modal
+        isOpen={isFeatureModalOpen}
+        onClose={() => {
+          setIsFeatureModalOpen(false);
+          setSelectedStoreForFeatures(null);
+        }}
+        title={`Manage Feature Lock Permissions — ${selectedStoreForFeatures?.storeName || 'Store'}`}
+        maxWidth="max-w-lg"
+      >
+        <div className="space-y-4">
+          <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-200 space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-purple-300">
+              <ShieldCheck className="w-4 h-4 text-purple-400" />
+              <span>Super Admin Feature Access Override</span>
+            </div>
+            <p className="text-[11px] text-slate-300">
+              Toggle ON individual add-on features for this store. Enabled features will be unlocked immediately on the shopkeeper's POS register.
+            </p>
+          </div>
+
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
+            {[
+              { id: 'suppliers', label: 'Suppliers Management & Payables', desc: 'Supplier directory, debt tracking, GRN purchases' },
+              { id: 'salesmen', label: 'Salesmen & Commissions', desc: 'Commission tracking, staff performance analytics' },
+              { id: 'reconciliation', label: 'Stock Reconciliation (Anti-Leakage)', desc: 'Physical audit comparisons & stock leak detection' },
+              { id: 'audit', label: 'Security Audit Trail', desc: 'Detailed log of all cashier activity & price overrides' },
+              { id: 'reports', label: 'Advanced Analytics & Executive Reporting', desc: 'Full profit breakdown, top seller heatmaps & CSV exports' },
+              { id: 'outdoor_medicine', label: 'Outdoor Medicine Sourcing (Medical)', desc: 'External chemist medicine sourcing & billing' }
+            ].map(feat => {
+              const isChecked = Boolean(tempPermissions[feat.id]);
+              return (
+                <div key={feat.id} className="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-bold text-white">{feat.label}</div>
+                    <div className="text-[10px] text-slate-400">{feat.desc}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTempPermissions(prev => ({ ...prev, [feat.id]: !prev[feat.id] }));
+                    }}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      isChecked
+                        ? 'bg-emerald-600 text-white shadow-md'
+                        : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                    }`}
+                  >
+                    {isChecked ? 'UNLOCKED ✅' : 'LOCKED 🔒'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsFeatureModalOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveFeaturePermissions}
+              className="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white shadow-lg"
+            >
+              Save Feature Permissions
             </button>
           </div>
         </div>

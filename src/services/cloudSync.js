@@ -3,8 +3,7 @@
 
 // Hardcoded Vercel production URL — .exe app ke liye zaroori hai kyunki
 // Electron mein VITE env variables inject nahi hotay
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://nexcart-pos-system.vercel.app';
-
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://nexcart-pos-system.vercel.app'
 /**
  * Naye store ko MongoDB Atlas mein register/sync karo
  * Jab bhi koi shopkeeper "Register Store on Nexcart Cloud" karta hai, yeh call hoti hai
@@ -64,12 +63,12 @@ export async function fetchCloudHub() {
 /**
  * SuperAdmin se store subscription status approve/reject/block karo
  */
-export async function approveStoreSubscription(storeId, subscriptionStatus, subscriptionPlan) {
+export async function approveStoreSubscription(storeId, subscriptionStatus, subscriptionPlan, featurePermissions) {
   try {
     const res = await fetch(`${API_BASE}/api/stores`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ storeId, subscriptionStatus, subscriptionPlan })
+      body: JSON.stringify({ storeId, subscriptionStatus, subscriptionPlan, featurePermissions })
     });
     const json = await res.json();
     return json;

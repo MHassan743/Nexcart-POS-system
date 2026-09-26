@@ -58,19 +58,19 @@ export const PAYMENT_METHODS = {
 export const PRICING_PLANS = [
   {
     id: 'trial',
-    name: '1.5 Month Free Trial',
+    name: '1 Month Free Trial',
     badge: '100% FREE',
     price: 'Rs 0',
-    period: 'for 45 Days',
+    period: 'for 30 Days',
     highlight: 'Ideal for trying out Nexcart POS',
     features: [
       'Full Access to POS Billing Terminal',
       'Inventory & Barcode Scanner',
       'Customer Khaata & Balance Ledger',
       'Real-time Cloud Telemetry Sync',
-      '45 Days Zero-Cost Access'
+      '30 Days Zero-Cost Access'
     ],
-    note: '1.5 month use is 100% FREE with zero setup fee. After 1.5 months, if you choose to continue, a one-time Setup Fee of Rs 12,000 + Rs 5,000/month System Maintenance Fee will be charged. If you do not choose a paid plan, access will be automatically blocked after 1.5 months.',
+    note: '1 month use is 100% FREE with zero setup fee. After 1 month, if you choose to continue, a one-time Setup Fee of Rs 17,000 + Rs 10,000/month System Maintenance Fee will be charged. If you do not choose a paid plan, access will be automatically blocked after 1 month.',
     isPopular: false,
     requiresProof: false
   },
@@ -78,9 +78,9 @@ export const PRICING_PLANS = [
     id: 'monthly',
     name: 'Monthly Maintenance Plan',
     badge: 'POPULAR',
-    price: 'Rs 5,000',
+    price: 'Rs 10,000',
     period: '/ month',
-    highlight: 'Regular maintenance & serverless sync',
+    highlight: 'Rs 10,000/month + Rs 17,000 setup = Rs 27,000 first month total',
     features: [
       'All POS Terminal & Inventory Features',
       'Unlimited Cloud Telemetry & Backup',
@@ -88,25 +88,45 @@ export const PRICING_PLANS = [
       'Priority 24/7 Technical Support',
       'Regular Anti-Leakage System Updates'
     ],
-    note: 'One-time Setup Fee: Rs 12,000 (charged once at activation) + Rs 5,000/month ongoing maintenance. First month total: Rs 17,000.',
+    note: 'One-time Setup Fee: Rs 17,000 (charged once at activation) + Rs 10,000/month ongoing maintenance. First month total: Rs 27,000.',
     isPopular: true,
     requiresProof: true
   },
   {
     id: 'annual',
     name: 'Annual Discounted Plan',
-    badge: 'BEST VALUE - SAVE Rs 32,400 (45% OFF)',
-    price: 'Rs 39,600',
+    badge: 'BEST VALUE - SAVE Rs 38,000 (45% OFF)',
+    price: 'Rs 44,500',
     period: '/ year',
-    highlight: 'Rs 39,600/year + Rs 12,000 one-time setup = Rs 51,600 first year total',
+    highlight: 'Rs 44,500/year + Rs 17,000 setup = Rs 61,500 first year total',
     features: [
       'Everything in Monthly Plan',
-      'Save Rs 32,400 — 45% Annual Discount',
+      'Save Rs 38,000 — 45% Annual Discount',
       '1 Full Year VIP Priority Cloud Sync',
       'Free Business Onboarding Support',
       'Guaranteed Zero Price Increase for 1 Year'
     ],
-    note: 'First year total: Rs 39,600 annual fee + Rs 12,000 one-time setup = Rs 51,600. From 2nd year onwards, only Rs 39,600/year.',
+    note: 'First year total: Rs 44,500 annual fee + Rs 17,000 one-time setup = Rs 61,500. From 2nd year onwards, only Rs 44,500/year.',
+    isPopular: false,
+    requiresProof: true
+  },
+  {
+    id: 'premium',
+    name: 'Premium All-Inclusive Plan',
+    badge: 'ALL FEATURES UNLOCKED',
+    price: 'Rs 75,000',
+    period: '/ year',
+    highlight: 'Rs 75,000/year + Rs 17,000 setup = Rs 92,000 first year total',
+    features: [
+      'Includes All Core POS Features',
+      'Suppliers Management & Payables',
+      'Salesmen & Commission Tracking',
+      'Stock Reconciliation Anti-Leakage',
+      'Security Audit Trail',
+      'Advanced Reporting & Analytics',
+      'Outdoor Medicine Sourcing'
+    ],
+    note: 'Includes ALL 6 Enterprise Features unlocked out of the box with zero feature locking + 1 Year VIP Priority Support.',
     isPopular: false,
     requiresProof: true
   }
@@ -114,6 +134,7 @@ export const PRICING_PLANS = [
 
 export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscription, onOpenSuperAdmin }) => {
   const [selectedPlanId, setSelectedPlanId] = useState('trial');
+  const [premiumCycle, setPremiumCycle] = useState('yearly'); // 'monthly' | 'yearly'
   const [activePaymentTab, setActivePaymentTab] = useState('jazzcash');
   const [copiedField, setCopiedField] = useState('');
   const [slipImage, setSlipImage] = useState(null);
@@ -174,9 +195,14 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
     e.preventDefault();
     setErrorMsg('');
 
-    const plan = PRICING_PLANS.find(p => p.id === selectedPlanId);
+    const rawPlan = PRICING_PLANS.find(p => p.id === selectedPlanId);
 
-    if (plan.requiresProof && !slipPreview) {
+    if (rawPlan.id === 'trial' && hasAlreadyUsedTrial) {
+      setErrorMsg('Free Trial can only be claimed once! Please select a paid maintenance plan.');
+      return;
+    }
+
+    if (rawPlan.requiresProof && !slipPreview) {
       setErrorMsg('Please upload payment transaction slip image to submit your plan claim!');
       return;
     }
@@ -184,16 +210,34 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
     setIsSubmitting(true);
 
     const now = new Date();
-    const trialExpiry = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000).toISOString();
+    const trialExpiry = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Determine final plan details for Premium Plan based on toggle
+    let finalPlanId = rawPlan.id;
+    let finalPlanName = rawPlan.name;
+    let finalPlanPrice = rawPlan.price;
+
+    if (rawPlan.id === 'premium') {
+      if (premiumCycle === 'monthly') {
+        finalPlanId = 'premium_monthly';
+        finalPlanName = 'Premium Plan (Monthly)';
+        finalPlanPrice = 'Rs 20,000 / month (+ Rs 21,000 setup = Rs 41,000 total)';
+      } else {
+        finalPlanId = 'premium_yearly';
+        finalPlanName = 'Premium Plan (Yearly Discounted)';
+        finalPlanPrice = 'Rs 200,000 / year (Save Rs 40,000)';
+      }
+    }
 
     const subscriptionData = {
-      planId: plan.id,
-      planName: plan.name,
-      planPrice: plan.price,
-      status: plan.id === 'trial' ? 'trial_active' : 'pending_verification',
+      planId: finalPlanId,
+      planName: finalPlanName,
+      planPrice: finalPlanPrice,
+      status: rawPlan.id === 'trial' ? 'trial_active' : 'pending_verification',
       trialStartDate: now.toISOString(),
       trialEndDate: trialExpiry,
-      paymentMethod: plan.requiresProof ? activePaymentTab : 'none',
+      hasUsedTrial: true,
+      paymentMethod: rawPlan.requiresProof ? activePaymentTab : 'none',
       paymentSlip: slipPreview || null,
       submittedAt: now.toISOString()
     };
@@ -207,12 +251,26 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
   const isPending = currentSubscription?.status === 'pending_verification';
   const isBlocked = currentSubscription?.status === 'blocked';
   const isTrialActive = currentSubscription?.status === 'trial_active';
-  const currentPlanObj = PRICING_PLANS.find(p => p.id === selectedPlanId);
+  const hasAlreadyUsedTrial = Boolean(
+    currentSubscription?.hasUsedTrial || 
+    currentSubscription?.planId === 'trial' || 
+    currentSubscription?.trialStartDate ||
+    isBlocked
+  );
+
+  // If trial was already used and trial is selected, fallback to monthly plan
+  useEffect(() => {
+    if (hasAlreadyUsedTrial && selectedPlanId === 'trial') {
+      setSelectedPlanId('monthly');
+    }
+  }, [hasAlreadyUsedTrial]);
+
+  const currentPlanObj = PRICING_PLANS.find(p => p.id === selectedPlanId) || PRICING_PLANS[1];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
       <div 
-        className="relative w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] my-auto"
+        className="relative w-full max-w-6xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -238,7 +296,7 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
             Select Your Store Maintenance Plan
           </h2>
           <p className="text-xs text-slate-400 max-w-xl mx-auto mt-1">
-            Start with our 1.5 Month 100% Free Trial or activate your paid maintenance subscription with instant cloud telemetry verification.
+            Start with our 1 Month 100% Free Trial or activate your paid maintenance subscription with instant cloud telemetry verification.
           </p>
         </div>
 
@@ -262,27 +320,65 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
                 <span>⛔ Store POS Access Blocked — Subscription Maintenance Expired</span>
               </div>
               <p className="text-slate-300 text-[11px] leading-relaxed">
-                Your 1.5 Month Free Trial or Subscription has ended. Please select a paid maintenance plan, transfer funds, and upload receipt screenshot below to restore register access.
+                Your 1 Month Free Trial or Subscription has ended. Please select a paid maintenance plan, transfer funds, and upload receipt screenshot below to restore register access.
               </p>
             </div>
           )}
-          {/* Plan Cards Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Plan Cards Selection — 4 Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {PRICING_PLANS.map((plan) => {
               const isSelected = selectedPlanId === plan.id;
+              const isTrial = plan.id === 'trial';
+              const isPremium = plan.id === 'premium';
+              const isTrialDisabled = isTrial && hasAlreadyUsedTrial;
+
+              // Dynamic price & period for Premium Plan toggle
+              const displayPrice = isPremium
+                ? (premiumCycle === 'monthly' ? 'Rs 20,000' : 'Rs 200,000')
+                : plan.price;
+              
+              const displayPeriod = isPremium
+                ? (premiumCycle === 'monthly' ? '/ month' : '/ year')
+                : plan.period;
+
+              const displayHighlight = isPremium
+                ? (premiumCycle === 'monthly' 
+                    ? 'Rs 20,000/mo + Rs 21,000 setup = Rs 41,000 first month total' 
+                    : 'Rs 200,000/year (Save Rs 40,000 OFF standard Rs 240,000 rate)')
+                : plan.highlight;
+
+              const displayNote = isPremium
+                ? (premiumCycle === 'monthly'
+                    ? 'One-time Setup Fee: Rs 21,000 + Rs 20,000/month. First month: Rs 41,000. Unlocks ALL 6 enterprise features automatic!'
+                    : 'Annual Fee: Rs 200,000/year (Standard rate Rs 240,000/yr). You SAVE Rs 40,000! Unlocks ALL 6 enterprise features automatic!')
+                : plan.note;
+
               return (
                 <div
                   key={plan.id}
-                  onClick={() => setSelectedPlanId(plan.id)}
-                  className={`relative cursor-pointer rounded-xl p-5 transition-all flex flex-col justify-between border ${
-                    isSelected 
-                      ? 'bg-slate-800/90 border-sky-500 shadow-xl shadow-sky-500/10 ring-2 ring-sky-500/30 scale-[1.02]' 
-                      : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/70 hover:border-slate-600'
+                  onClick={() => {
+                    if (isTrialDisabled) return;
+                    setSelectedPlanId(plan.id);
+                  }}
+                  className={`relative rounded-xl p-5 transition-all flex flex-col justify-between border ${
+                    isTrialDisabled
+                      ? 'bg-slate-900/30 border-slate-800/80 opacity-50 cursor-not-allowed grayscale-[40%]'
+                      : isSelected 
+                        ? isPremium 
+                          ? 'bg-purple-950/40 border-purple-500 shadow-xl shadow-purple-500/10 ring-2 ring-purple-500/30 scale-[1.02] cursor-pointer'
+                          : 'bg-slate-800/90 border-sky-500 shadow-xl shadow-sky-500/10 ring-2 ring-sky-500/30 scale-[1.02] cursor-pointer' 
+                        : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800/70 hover:border-slate-600 cursor-pointer'
                   }`}
                 >
                   {plan.badge && (
-                    <div className="absolute -top-3 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500 text-slate-950 uppercase tracking-wider shadow">
-                      {plan.badge}
+                    <div className={`absolute -top-3 right-4 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow ${
+                      isTrialDisabled 
+                        ? 'bg-slate-700 text-slate-400' 
+                        : isPremium
+                          ? 'bg-purple-500 text-white shadow-purple-500/20'
+                          : 'bg-sky-500 text-slate-950'
+                    }`}>
+                      {isTrialDisabled ? 'CLAIMED / USED' : isPremium && premiumCycle === 'yearly' ? 'SAVE Rs 40,000 (17% OFF)' : plan.badge}
                     </div>
                   )}
 
@@ -290,23 +386,60 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-heading text-base font-bold text-white">{plan.name}</h3>
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                        isSelected ? 'border-sky-400 bg-sky-500 text-slate-950' : 'border-slate-600'
+                        isSelected && !isTrialDisabled ? (isPremium ? 'border-purple-400 bg-purple-500 text-white' : 'border-sky-400 bg-sky-500 text-slate-950') : 'border-slate-600'
                       }`}>
-                        {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                        {isSelected && !isTrialDisabled && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                       </div>
                     </div>
 
+                    {/* Premium Plan Toggle Selector */}
+                    {isPremium && (
+                      <div 
+                        className="my-2 p-1 rounded-lg bg-slate-900 border border-slate-700 flex items-center gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedPlanId('premium');
+                            setPremiumCycle('monthly');
+                          }}
+                          className={`flex-1 py-1 rounded text-[10px] font-bold transition-all ${
+                            premiumCycle === 'monthly'
+                              ? 'bg-purple-600 text-white shadow'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          Monthly (Rs 20k)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedPlanId('premium');
+                            setPremiumCycle('yearly');
+                          }}
+                          className={`flex-1 py-1 rounded text-[10px] font-bold transition-all ${
+                            premiumCycle === 'yearly'
+                              ? 'bg-purple-600 text-white shadow'
+                              : 'text-slate-400 hover:text-white'
+                          }`}
+                        >
+                          Yearly (Rs 200k)
+                        </button>
+                      </div>
+                    )}
+
                     <div className="flex items-baseline gap-1 my-3">
-                      <span className="text-2xl font-extrabold text-white">{plan.price}</span>
-                      <span className="text-xs text-slate-400 font-medium">{plan.period}</span>
+                      <span className="text-2xl font-extrabold text-white">{displayPrice}</span>
+                      <span className="text-xs text-slate-400 font-medium">{displayPeriod}</span>
                     </div>
 
-                    <p className="text-xs text-slate-400 mb-4 font-medium">{plan.highlight}</p>
+                    <p className="text-xs text-slate-400 mb-4 font-medium">{displayHighlight}</p>
 
                     <div className="space-y-2 pt-3 border-t border-slate-700/60 text-xs">
                       {plan.features.map((feat, idx) => (
                         <div key={idx} className="flex items-start gap-2 text-slate-300">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                          <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${isPremium ? 'text-purple-400' : 'text-emerald-400'}`} />
                           <span>{feat}</span>
                         </div>
                       ))}
@@ -314,9 +447,19 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
                   </div>
 
                   {/* Note block */}
-                  <div className="mt-4 pt-3 border-t border-slate-700/60 text-[11px] text-amber-300/90 leading-snug bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
-                    <span className="font-bold text-amber-200">Note: </span>
-                    {plan.note}
+                  <div className={`mt-4 pt-3 border-t text-[11px] leading-snug p-2.5 rounded-lg border ${
+                    isTrialDisabled
+                      ? 'bg-rose-500/10 border-rose-500/20 text-rose-300/90'
+                      : isPremium
+                        ? 'bg-purple-500/10 border-purple-500/20 text-purple-200'
+                        : 'bg-amber-500/10 border-amber-500/20 text-amber-300/90'
+                  }`}>
+                    <span className="font-bold">
+                      {isTrialDisabled ? '⚠️ Trial Claimed: ' : 'Note: '}
+                    </span>
+                    {isTrialDisabled 
+                      ? 'Free trial has already been used on this register. Please choose a paid plan to activate your store.' 
+                      : displayNote}
                   </div>
                 </div>
               );

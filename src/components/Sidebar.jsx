@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   ShoppingCart, 
@@ -19,18 +19,43 @@ import {
   ChevronRight, 
   PhoneCall, 
   CheckCircle2, 
-  LogOut 
+  LogOut,
+  Lock,
+  Send
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
-import { NexcartBadge } from './NexcartBranding.jsx';
+import { Modal } from './Modal.jsx';
+import { DB } from '../services/db.js';
+import { syncStoreToCloud } from '../services/cloudSync.js';
 
 export const Sidebar = ({ activeTab, onSelectTab }) => {
   const { user, store, logout } = useAuth();
 
+  // Locked feature modal state
+  const [lockedFeatureModal, setLockedFeatureModal] = useState({ isOpen: false, feature: null, requestSent: false });
+
+  // 6 Enterprise Features lock check
+  const isFeatureUnlocked = (featureId) => {
+    // Non-locked items (Core POS features)
+    const lockedKeys = ['suppliers', 'salesmen', 'reconciliation', 'audit', 'reports'];
+    if (!lockedKeys.includes(featureId)) return true;
+
+    // Premium plan unlocks ALL features
+    const plan = (store?.subscriptionPlan || store?.subscription?.planId || store?.plan || '').toLowerCase();
+    if (plan.includes('premium') || plan === 'premium') return true;
+
+    // Individual permission set by Super Admin
+    if (store?.featurePermissions && store.featurePermissions[featureId] === true) {
+      return true;
+    }
+
+    return false;
+  };
+
   const navItems = [
     {
       id: 'reports',
-      label: 'Dashboard',
+      label: 'Dashboard & Reports',
       icon: LayoutDashboard,
       badge: 'Live',
       badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
@@ -115,7 +140,31 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
     }
   ];
 
-  // Calculate dynamic license expiry date (45 days for trial or stored subscription date)
+  const handleNavClick = (item) => {
+    if (!isFeatureUnlocked(item.id)) {
+      setLockedFeatureModal({
+        isOpen: true,
+        feature: item,
+        requestSent: store?.featureRequests?.[item.id] === 'pending'
+      });
+      return;
+    }
+    onSelectTab(item.id);
+  };
+
+  const handleSendFeatureRequest = async () => {
+    if (!lockedFeatureModal.feature) return;
+    const featureId = lockedFeatureModal.feature.id;
+    const currentRequests = store?.featureRequests || {};
+    const updatedRequests = { ...currentRequests, [featureId]: 'pending' };
+
+    const updatedStore = DB.updateStore({ featureRequests: updatedRequests });
+    await syncStoreToCloud(updatedStore);
+
+    setLockedFeatureModal(prev => ({ ...prev, requestSent: true }));
+  };
+
+  // Calculate dynamic license expiry date
   const getFormattedExpiryDate = () => {
     const rawDate = store?.trialEndDate || store?.subscription?.trialEndDate || store?.subscriptionExpiry;
     if (rawDate) {
@@ -124,15 +173,14 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
         return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
       } catch (e) {}
     }
-    // Default 45 days (1.5 months) from registration date
     const regDate = store?.registeredAt ? new Date(store.registeredAt) : new Date();
-    const expiry = new Date(regDate.getTime() + 45 * 24 * 60 * 60 * 1000);
+    const expiry = new Date(regDate.getTime() + 30 * 24 * 60 * 60 * 1000);
     return expiry.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   return (
     <aside className="w-64 bg-[#0b0f19] border-r border-slate-800/80 flex flex-col h-full z-20 shrink-0 select-none shadow-2xl">
-      {/* Sidebar Header (Store Name & Account Indicator - Doxfen Style) */}
+      {/* Sidebar Header */}
       <div className="p-3.5 border-b border-slate-800/80 bg-[#080b12]">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shadow-glow-blue border border-blue-400/30 shrink-0">
@@ -157,45 +205,52 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
+          const unlocked = isFeatureUnlocked(item.id);
           
-          // Role restriction
           if (item.role && user?.role === 'CASHIER') {
-            return null; // Cashiers cannot access admin audit logs
+            return null;
           }
 
           return (
             <button
               key={item.id}
-              onClick={() => onSelectTab(item.id)}
+              onClick={() => handleNavClick(item)}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium text-xs transition-all duration-200 group ${
-                isActive
-                  ? 'bg-blue-600 text-white shadow-glow-blue font-semibold border border-blue-400/40'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 border border-transparent'
+                !unlocked
+                  ? 'text-slate-500 hover:bg-slate-900/60 border border-slate-800/40'
+                  : isActive
+                    ? 'bg-blue-600 text-white shadow-glow-blue font-semibold border border-blue-400/40'
+                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 border border-transparent'
               }`}
             >
               <div className="flex items-center gap-3 truncate">
                 <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${
-                  isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-400'
+                  !unlocked ? 'text-slate-600' : isActive ? 'text-white' : 'text-slate-400 group-hover:text-blue-400'
                 }`} />
                 <span className="truncate">{item.label}</span>
               </div>
 
               <div className="flex items-center gap-1 shrink-0">
-                {item.badge && (
+                {!unlocked ? (
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5" />
+                    <span>LOCKED</span>
+                  </span>
+                ) : item.badge ? (
                   <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold border tracking-tight ${
                     isActive ? 'bg-white/20 text-white border-white/30' : item.badgeColor
                   }`}>
                     {item.badge}
                   </span>
-                )}
-                {isActive && <ChevronRight className="w-3.5 h-3.5 text-white/80" />}
+                ) : null}
+                {isActive && unlocked && <ChevronRight className="w-3.5 h-3.5 text-white/80" />}
               </div>
             </button>
           );
         })}
       </div>
 
-      {/* Sidebar Footer Account & License Indicator (Doxfen Parity) */}
+      {/* Sidebar Footer Account & License Indicator */}
       <div className="p-3 border-t border-slate-800/80 bg-[#080b12] space-y-2">
         <div className="px-2.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col gap-1 text-[10px]">
           <div className="flex items-center justify-between font-mono text-slate-300">
@@ -219,6 +274,56 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
           <span>Switch Account / Logout</span>
         </button>
       </div>
+
+      {/* Locked Feature Modal */}
+      <Modal
+        isOpen={lockedFeatureModal.isOpen}
+        onClose={() => setLockedFeatureModal({ isOpen: false, feature: null, requestSent: false })}
+        title="Feature Locked — Add-on Feature Required"
+        maxWidth="max-w-md"
+      >
+        {lockedFeatureModal.feature && (
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs space-y-2 text-center">
+              <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400">
+                <Lock className="w-5 h-5" />
+              </div>
+              <h3 className="font-heading font-extrabold text-sm text-white">
+                {lockedFeatureModal.feature.label} is Locked
+              </h3>
+              <p className="text-slate-300 text-[11px] leading-relaxed">
+                This feature is locked in standard plans. Upgrade to <strong className="text-purple-300">Premium All-Inclusive Plan</strong> or request individual add-on approval from Super Admin.
+              </p>
+            </div>
+
+            {lockedFeatureModal.requestSent ? (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold text-center flex items-center justify-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Unlock Request Sent to Super Admin! Pending Approval.</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSendFeatureRequest}
+                className="w-full py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 font-bold text-xs text-white shadow-lg flex items-center justify-center gap-2 transition-all active:scale-95"
+              >
+                <Send className="w-4 h-4" />
+                <span>Send Feature Access Request to Admin</span>
+              </button>
+            )}
+
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={() => setLockedFeatureModal({ isOpen: false, feature: null, requestSent: false })}
+                className="w-full py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+              >
+                Close Window
+              </button>
+            </div>
+          </div>
+        )}
+      </Modal>
     </aside>
   );
 };
