@@ -1,7 +1,9 @@
 // Nexcart Cloud Sync Service — MongoDB Atlas API Bridge
 // Yeh service shopkeeper PC se Vercel API ke zariye MongoDB mein data sync karta hai
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+// Hardcoded Vercel production URL — .exe app ke liye zaroori hai kyunki
+// Electron mein VITE env variables inject nahi hotay
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://nexcart-pos-system.vercel.app';
 
 /**
  * Naye store ko MongoDB Atlas mein register/sync karo
