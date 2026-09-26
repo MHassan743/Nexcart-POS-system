@@ -25,12 +25,59 @@ import { PricingModal } from './components/PricingModal.jsx';
 
 import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
 
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("Nexcart POS Uncaught UI Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 text-center">
+          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-400 mx-auto flex items-center justify-center">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <h2 className="text-xl font-bold text-white">System Protection Recovery</h2>
+            <p className="text-xs text-slate-400">
+              An unexpected display error occurred. Click below to refresh session safely.
+            </p>
+            <div className="p-3 bg-slate-950/80 rounded-xl text-left border border-slate-800 font-mono text-[11px] text-rose-300 overflow-x-auto max-h-32">
+              {this.state.error?.toString()}
+            </div>
+            <button
+              onClick={() => {
+                localStorage.removeItem('nexcart_active_user');
+                window.location.reload();
+              }}
+              className="w-full py-3 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-lg transition-all"
+            >
+              Reset Session & Reload POS Terminal
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const MainLayout = () => {
   const { user, store, loginWithPin, updateSubscription } = useAuth();
   const [activeTab, setActiveTab] = useState('pos');
 
-  const subStatus = (store?.subscriptionStatus || store?.subscription?.status || store?.status || 'pending_verification').toString().toLowerCase();
-  const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName || store?.plan;
+  const rawSubStatus = store?.subscriptionStatus || store?.subscription?.status || store?.status;
+  const subStatus = (typeof rawSubStatus === 'string' ? rawSubStatus : 'pending_verification').toLowerCase();
+  const planId = store?.subscriptionPlan || store?.subscription?.planId || store?.subscription?.planName || store?.plan || null;
 
   const isPending = subStatus === 'pending_verification';
   const isBlocked = subStatus === 'blocked';
@@ -44,13 +91,10 @@ const MainLayout = () => {
   React.useEffect(() => {
     if (isLocked) {
       setIsPricingOpen(true);
-    } else if (isTrialExpired) {
-      updateSubscription({ ...store?.subscription, status: 'blocked' });
-      setIsPricingOpen(true);
     } else {
       setIsPricingOpen(false);
     }
-  }, [subStatus, planId, isLocked]);
+  }, [isLocked]);
 
   // Quick PIN Switcher Modal State
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
@@ -306,10 +350,12 @@ export default function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <POSProvider>
-        <MainLayout />
-      </POSProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <POSProvider>
+          <MainLayout />
+        </POSProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
