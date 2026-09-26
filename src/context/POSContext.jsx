@@ -200,8 +200,11 @@ export const POSProvider = ({ children }) => {
   return (
     <POSContext.Provider value={{
       products,
+      setProducts,
       customers,
+      setCustomers,
       transactions,
+      setTransactions,
       parkedBills,
       auditLogs,
       reconciliations,

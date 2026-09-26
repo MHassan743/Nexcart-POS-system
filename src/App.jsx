@@ -16,6 +16,11 @@ import { AuditView } from './views/AuditView.jsx';
 import { SuperAdminView } from './views/SuperAdminView.jsx';
 import { SettingsView } from './views/SettingsView.jsx';
 import { ReturnsView } from './views/ReturnsView.jsx';
+import { SuppliersView } from './views/SuppliersView.jsx';
+import { PurchasesView } from './views/PurchasesView.jsx';
+import { ExpensesView } from './views/ExpensesView.jsx';
+import { SalesmenView } from './views/SalesmenView.jsx';
+import { DiscountsView } from './views/DiscountsView.jsx';
 import { PricingModal } from './components/PricingModal.jsx';
 
 import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
@@ -112,6 +117,16 @@ const MainLayout = () => {
         return <POSView />;
       case 'inventory':
         return <InventoryView />;
+      case 'suppliers':
+        return <SuppliersView />;
+      case 'purchases':
+        return <PurchasesView />;
+      case 'expenses':
+        return <ExpensesView />;
+      case 'salesmen':
+        return <SalesmenView />;
+      case 'discounts':
+        return <DiscountsView />;
       case 'reconciliation':
         return <ReconciliationView />;
       case 'customers':

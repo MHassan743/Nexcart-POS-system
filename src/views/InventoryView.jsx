@@ -463,14 +463,15 @@ export const InventoryView = () => {
             </div>
           </div>
 
-          {/* Industry Specific Fields: Pharmacy (Batch, Expiry) & Electronics (IMEI/Serial) */}
-          <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
-            <div className="text-[11px] font-bold text-sky-400 uppercase tracking-wide">
-              Industry Special Attributes (Optional)
+          {/* Industry Specific Fields for 14 Business Categories */}
+          <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
+            <div className="text-[11px] font-bold text-amber-400 uppercase tracking-wide flex items-center justify-between">
+              <span>Category Specialized Attributes ({store?.businessCategory || 'Retail Shop'})</span>
+              <span className="text-[10px] text-slate-500 font-normal">Auto-Adapts to Shop Type</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[10px]">
               <div>
-                <label className="block text-[10px] font-medium text-slate-300 mb-1">Batch / Lot # (Pharmacy)</label>
+                <label className="block font-medium text-slate-300 mb-1">Batch # / Formula (Pharmacy)</label>
                 <input
                   type="text"
                   placeholder="e.g. BATCH-9021"
@@ -480,7 +481,7 @@ export const InventoryView = () => {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-medium text-slate-300 mb-1">Expiry Date (Pharmacy)</label>
+                <label className="block font-medium text-slate-300 mb-1">Expiry Date (Pharmacy / Grocery)</label>
                 <input
                   type="date"
                   value={prodForm.expiryDate}
@@ -489,12 +490,42 @@ export const InventoryView = () => {
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-medium text-slate-300 mb-1">IMEI / Serial # (Mobile)</label>
+                <label className="block font-medium text-slate-300 mb-1">IMEI / Serial # (Electronics)</label>
                 <input
                   type="text"
                   placeholder="e.g. 86492019..."
                   value={prodForm.imeiNumber}
                   onChange={(e) => setProdForm({ ...prodForm, imeiNumber: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500 font-mono"
+                />
+              </div>
+              <div>
+                <label className="block font-medium text-slate-300 mb-1">Size / Color Matrix (Fashion/Shoes)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Size 42 / Black"
+                  value={prodForm.sizeColor || ''}
+                  onChange={(e) => setProdForm({ ...prodForm, sizeColor: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500"
+                />
+              </div>
+              <div>
+                <label className="block font-medium text-slate-300 mb-1">OEM Part # / Model (Auto/Hardware)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. OEM-9981-HONDA"
+                  value={prodForm.oemPartNumber || ''}
+                  onChange={(e) => setProdForm({ ...prodForm, oemPartNumber: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500 font-mono"
+                />
+              </div>
+              <div>
+                <label className="block font-medium text-slate-300 mb-1">Karat / Net Weight (Jewelry)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 22K - 11.6 Grams"
+                  value={prodForm.karatWeight || ''}
+                  onChange={(e) => setProdForm({ ...prodForm, karatWeight: e.target.value })}
                   className="w-full px-2 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-white focus:outline-none focus:border-sky-500 font-mono"
                 />
               </div>

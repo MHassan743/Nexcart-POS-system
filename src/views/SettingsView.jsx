@@ -72,6 +72,32 @@ export const SettingsView = () => {
               </div>
 
               <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Business Category Type *</label>
+                <select
+                  value={form.businessCategory || store?.businessCategory || 'Pharmacy & Medical Store'}
+                  onChange={(e) => setForm({ ...form, businessCategory: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-amber-300 font-bold focus:outline-none focus:border-sky-500 transition-colors"
+                >
+                  <option value="Pharmacy & Medical Store">💊 Pharmacy & Medical Store</option>
+                  <option value="Grocery & Supermarket">🛒 Grocery & Supermarket</option>
+                  <option value="Crockery & Home Goods">🍽️ Crockery & Home Goods</option>
+                  <option value="Electronics & Mobile Store">📱 Electronics & Mobile Store</option>
+                  <option value="Fashion & Apparel">👔 Fashion & Apparel</option>
+                  <option value="Cosmetics & Beauty">💄 Cosmetics & Beauty</option>
+                  <option value="Hardware & Building Supplies">🔧 Hardware & Building Supplies</option>
+                  <option value="Footwear & Shoes Store">👞 Footwear & Shoes Store</option>
+                  <option value="Books & Stationery Shop">📚 Books & Stationery Shop</option>
+                  <option value="Toys & Gift Shop">🧸 Toys & Gift Shop</option>
+                  <option value="Auto Parts & Bike Accessories">🚗 Auto Parts & Bike Accessories</option>
+                  <option value="Jewelry & Watches Store">💍 Jewelry & Watches Store</option>
+                  <option value="Bakery & Confectionery">🎂 Bakery & Confectionery</option>
+                  <option value="General Store / Retail Shop">🏪 General Store / Retail Shop</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1">Business Phone Number *</label>
                 <input
                   type="text"
@@ -81,17 +107,17 @@ export const SettingsView = () => {
                   className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">Shop Address / Location * (Appears on Printed Receipts & Master Directory)</label>
-              <input
-                type="text"
-                required
-                value={form.address}
-                onChange={(e) => setForm({ ...form, address: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors"
-              />
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1">Shop Address / Location * (Appears on Printed Receipts)</label>
+                <input
+                  type="text"
+                  required
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-sky-500 transition-colors"
+                />
+              </div>
             </div>
           </div>
 
