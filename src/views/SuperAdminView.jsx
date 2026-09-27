@@ -174,6 +174,7 @@ export const SuperAdminView = () => {
   const [isFeatureModalOpen, setIsFeatureModalOpen] = useState(false);
   const [selectedStoreForFeatures, setSelectedStoreForFeatures] = useState(null);
   const [tempPermissions, setTempPermissions] = useState({
+    customers: false,
     suppliers: false,
     salesmen: false,
     reconciliation: false,
@@ -187,6 +188,7 @@ export const SuperAdminView = () => {
     const existing = targetStore.featurePermissions || {};
     const isPremium = (targetStore.subscriptionPlan || '').toLowerCase().includes('premium');
     setTempPermissions({
+      customers: isPremium ? true : Boolean(existing.customers),
       suppliers: isPremium ? true : Boolean(existing.suppliers),
       salesmen: isPremium ? true : Boolean(existing.salesmen),
       reconciliation: isPremium ? true : Boolean(existing.reconciliation),
@@ -847,6 +849,7 @@ export const SuperAdminView = () => {
 
           <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
             {[
+              { id: 'customers', label: 'Customers & Khaata (Credit Ledger)', desc: 'Customer credit accounts, Khaata ledger & udhaar tracking' },
               { id: 'suppliers', label: 'Suppliers Management & Payables', desc: 'Supplier directory, debt tracking, GRN purchases' },
               { id: 'salesmen', label: 'Salesmen & Commissions', desc: 'Commission tracking, staff performance analytics' },
               { id: 'reconciliation', label: 'Stock Reconciliation (Anti-Leakage)', desc: 'Physical audit comparisons & stock leak detection' },
