@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DB } from '../services/db.js';
-import { syncStoreToCloud, pingStoreOnline, fetchCloudHub } from '../services/cloudSync.js';
+import { syncStoreToCloud, registerStoreToCloud, pingStoreOnline, fetchCloudHub } from '../services/cloudSync.js';
+import { syncService } from '../services/syncService.js';
 
 const AuthContext = createContext();
 
@@ -69,10 +70,15 @@ export const AuthProvider = ({ children }) => {
     setStore(currentStore);
     setLoading(false);
 
-    // Initial hub load and background cloud sync interval (every 4s)
+    // Initial hub load and start background outbox sync service
     refreshGlobalHub();
+    syncService.start(120000); // 2 minute background sync loop
+
     const interval = setInterval(refreshGlobalHub, 4000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      syncService.stop();
+    };
   }, []);
 
   // Quick Till PIN Login
@@ -114,16 +120,17 @@ export const AuthProvider = ({ children }) => {
       const currentStore = DB.getStore();
       if (currentStore?.storeId) {
         pingStoreOnline(currentStore.storeId);
-        // Also ensure current store is synced to cloud
-        syncStoreToCloud(currentStore);
+        // Ensure background sync runs immediately on login
+        syncService.triggerSync();
       }
       return { success: true, user: found };
     }
     return { success: false, message: 'Account not found for this store' };
   };
 
-  // Register New Store (Serverless Cloud Onboarding)
+  // Register New Store (Offline Setup Wizard + Mandatory /api/register-store Cloud Call)
   const registerStore = (storeData) => {
+    // 1. Save store locally with pending_sync: true
     const newStore = DB.registerNewStore(storeData);
     const employees = DB.getEmployees();
     const owner = employees.find(e => e.role === 'OWNER') || employees[0];
@@ -132,9 +139,29 @@ export const AuthProvider = ({ children }) => {
     setUser(owner);
     DB.setActiveUser(owner);
 
-    // Immediate Cloud Sync to MongoDB Atlas
-    syncStoreToCloud(newStore).then(() => {
+    // 2. Attempt mandatory backend API call to register-store endpoint
+    registerStoreToCloud(newStore).then((res) => {
+      if (res && res.success) {
+        const returnedStoreId = res.store_id || res.storeId || newStore.storeId;
+        const updated = DB.updateStore({
+          storeId: returnedStoreId,
+          pending_sync: false
+        });
+        setStore(updated);
+
+        // Mark store register outbox event as synced
+        const pendingOutbox = DB.getPendingOutbox();
+        const regItem = pendingOutbox.find(i => i.type === 'STORE_REGISTER');
+        if (regItem) {
+          DB.markOutboxSynced([regItem.id]);
+        }
+      } else {
+        console.log('[AuthContext] Store registered locally (pending_sync = true). Background sync will upload when online.');
+      }
       refreshGlobalHub();
+      syncService.triggerSync();
+    }).catch(err => {
+      console.warn('[AuthContext] registerStoreToCloud network error:', err);
     });
 
     setGlobalHub(DB.getGlobalHub());

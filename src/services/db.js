@@ -12,7 +12,8 @@ const STORAGE_KEYS = {
   SHIFTS: 'nexcart_shifts',
   AUDIT_LOGS: 'nexcart_audit_logs',
   GLOBAL_HUB: 'nexcart_global_hub',
-  ACTIVE_USER: 'nexcart_active_user'
+  ACTIVE_USER: 'nexcart_active_user',
+  OUTBOX: 'nexcart_outbox'
 };
 
 // Helper: Safely get JSON from LocalStorage
@@ -113,6 +114,43 @@ export const DB = {
     if (!localStorage.getItem(STORAGE_KEYS.AUDIT_LOGS)) {
       setStorage(STORAGE_KEYS.AUDIT_LOGS, []);
     }
+
+    if (!localStorage.getItem(STORAGE_KEYS.OUTBOX)) {
+      setStorage(STORAGE_KEYS.OUTBOX, []);
+    }
+  },
+
+  // Outbox Queue Management
+  getOutbox: () => getStorage(STORAGE_KEYS.OUTBOX, []),
+  getPendingOutbox: () => getStorage(STORAGE_KEYS.OUTBOX, []).filter(item => item.pending_sync === true),
+  addToOutbox: (type, payload) => {
+    const outbox = getStorage(STORAGE_KEYS.OUTBOX, []);
+    const newItem = {
+      id: `outbox-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+      type,
+      payload,
+      timestamp: new Date().toISOString(),
+      pending_sync: true
+    };
+    outbox.push(newItem);
+    setStorage(STORAGE_KEYS.OUTBOX, outbox);
+    return newItem;
+  },
+  markOutboxSynced: (syncedIds) => {
+    if (!Array.isArray(syncedIds) || syncedIds.length === 0) return;
+    const outbox = getStorage(STORAGE_KEYS.OUTBOX, []);
+    const updated = outbox.map(item => {
+      if (syncedIds.includes(item.id)) {
+        return { ...item, pending_sync: false };
+      }
+      return item;
+    });
+    setStorage(STORAGE_KEYS.OUTBOX, updated);
+  },
+  clearSyncedOutbox: () => {
+    const outbox = getStorage(STORAGE_KEYS.OUTBOX, []);
+    const pendingOnly = outbox.filter(item => item.pending_sync === true);
+    setStorage(STORAGE_KEYS.OUTBOX, pendingOnly);
   },
 
   // Store Management
@@ -187,11 +225,15 @@ export const DB = {
         planName: null
       },
       totalTransactionsCount: 0,
-      totalSalesVolume: 0
+      totalSalesVolume: 0,
+      pending_sync: true
     };
 
     // Save as current store
     setStorage(STORAGE_KEYS.CURRENT_STORE, newStore);
+
+    // Add to outbox queue for background sync
+    DB.addToOutbox('STORE_REGISTER', newStore);
 
     // Sync to Serverless Master Registry (Nexcart Central Record)
     const hub = getStorage(STORAGE_KEYS.GLOBAL_HUB, []);
@@ -287,6 +329,7 @@ export const DB = {
       updated = [product, ...products];
     }
     setStorage(STORAGE_KEYS.PRODUCTS, updated);
+    DB.addToOutbox('PRODUCT_UPDATE', product);
 
     if (currentUser) {
       DB.addAuditLog({
@@ -470,6 +513,9 @@ export const DB = {
 
     transactions.unshift(transactionRecord);
     setStorage(STORAGE_KEYS.TRANSACTIONS, transactions);
+
+    // Enqueue transaction into Outbox queue for background cloud sync
+    DB.addToOutbox('TRANSACTION_CREATE', transactionRecord);
 
     // Update Global Hub volume metrics
     const hub = getStorage(STORAGE_KEYS.GLOBAL_HUB, []);

@@ -28,6 +28,8 @@ import { Modal } from './Modal.jsx';
 import { DB } from '../services/db.js';
 import { syncStoreToCloud } from '../services/cloudSync.js';
 
+import { SyncStatusIndicator } from './SyncStatusIndicator.jsx';
+
 export const Sidebar = ({ activeTab, onSelectTab }) => {
   const { user, store, logout } = useAuth();
 
@@ -265,6 +267,9 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
 
       {/* Sidebar Footer Account & License Indicator */}
       <div className="p-3 border-t border-slate-800/80 bg-[#080b12] space-y-2">
+        {/* Real-time Cloud Connection & Sync Status */}
+        <SyncStatusIndicator compact={false} />
+
         <div className="px-2.5 py-2 rounded-xl bg-slate-900/80 border border-slate-800 flex flex-col gap-1 text-[10px]">
           <div className="flex items-center justify-between font-mono text-slate-300">
             <span className="flex items-center gap-1 text-slate-400">

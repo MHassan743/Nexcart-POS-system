@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePOS } from '../context/POSContext.jsx';
 import { NexcartLogo, NexcartBadge } from './NexcartBranding.jsx';
+import { SyncStatusIndicator } from './SyncStatusIndicator.jsx';
 import { 
   UserCheck, 
   LogOut, 
@@ -29,7 +30,7 @@ export const Navbar = ({ onOpenPinModal, onNavigate }) => {
         <NexcartLogo className="w-9 h-9" />
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="font-heading text-base font-bold text-white tracking-wide truncate max-w-[200px] sm:max-w-[300px]">
+            <h1 className="font-heading text-base font-bold text-white tracking-wide truncate max-w-[180px] sm:max-w-[280px]">
               {store?.storeName || 'Nexcart POS'}
             </h1>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase">
@@ -44,8 +45,10 @@ export const Navbar = ({ onOpenPinModal, onNavigate }) => {
         </div>
       </div>
 
-      {/* Right Controls & Cashier Profile */}
+      {/* Right Controls, Cloud Connection Indicator & Cashier Profile */}
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Real-time Cloud Connection & Sync Status Indicator */}
+        <SyncStatusIndicator compact={true} />
 
         {/* Low Stock Alert Notifications */}
         <div className="relative">
