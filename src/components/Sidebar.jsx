@@ -39,7 +39,7 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
   // 6 Enterprise Features lock check
   const isFeatureUnlocked = (featureId) => {
     // Non-locked items (Core POS features)
-    const lockedKeys = ['suppliers', 'salesmen', 'reconciliation', 'audit', 'reports'];
+    const lockedKeys = ['suppliers', 'salesmen', 'reconciliation', 'audit', 'reports', 'customers'];
     if (!lockedKeys.includes(featureId)) return true;
 
     // Premium plan unlocks ALL features

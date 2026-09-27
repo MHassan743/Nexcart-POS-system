@@ -95,18 +95,18 @@ export const PRICING_PLANS = [
   {
     id: 'annual',
     name: 'Annual Discounted Plan',
-    badge: 'BEST VALUE - SAVE Rs 38,000 (45% OFF)',
-    price: 'Rs 44,500',
+    badge: 'BEST VALUE - SAVE Rs 34,400 (29% OFF)',
+    price: 'Rs 85,600',
     period: '/ year',
-    highlight: 'Rs 44,500/year + Rs 17,000 setup = Rs 61,500 first year total',
+    highlight: 'Rs 85,600/year + Rs 17,000 setup = Rs 102,600 first year total',
     features: [
       'Everything in Monthly Plan',
-      'Save Rs 38,000 — 45% Annual Discount',
+      'Save Rs 34,400 — 29% Annual Discount',
       '1 Full Year VIP Priority Cloud Sync',
       'Free Business Onboarding Support',
       'Guaranteed Zero Price Increase for 1 Year'
     ],
-    note: 'First year total: Rs 44,500 annual fee + Rs 17,000 one-time setup = Rs 61,500. From 2nd year onwards, only Rs 44,500/year.',
+    note: 'First year total: Rs 85,600 annual fee + Rs 17,000 one-time setup = Rs 102,600. From 2nd year onwards, only Rs 85,600/year.',
     isPopular: false,
     requiresProof: true
   },
@@ -287,9 +287,9 @@ export const PricingModal = ({ isOpen, onClose, onSelectPlan, currentSubscriptio
     if (planId === 'annual') {
       return {
         name: 'Annual Discounted Plan',
-        priceLabel: 'Rs 44,500 / yr',
-        transferTotal: 'Rs 61,500',
-        transferNote: 'Rs 44,500/yr annual fee + Rs 17,000 setup = Rs 61,500 first year total'
+        priceLabel: 'Rs 85,600 / yr',
+        transferTotal: 'Rs 1,02,600',
+        transferNote: 'Rs 85,600/yr annual fee + Rs 17,000 setup = Rs 1,02,600 first year total'
       };
     }
     if (planId === 'premium') {
