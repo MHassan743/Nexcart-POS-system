@@ -21,7 +21,13 @@ import {
   CheckCircle2, 
   LogOut,
   Lock,
-  Send
+  Send,
+  Calculator,
+  Wrench,
+  CreditCard,
+  Pill,
+  Cake,
+  Gem
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Modal } from './Modal.jsx';
@@ -81,6 +87,48 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
       icon: ShoppingCart,
       badge: 'Terminal',
       badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+    },
+    {
+      id: 'register',
+      label: 'Day Register & Z-Report',
+      icon: Calculator,
+      badge: 'Cash Drawer',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+    },
+    {
+      id: 'warranty',
+      label: 'Warranty & Repairs',
+      icon: Wrench,
+      badge: 'Electronics/Auto',
+      badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/30'
+    },
+    {
+      id: 'installments',
+      label: 'Installments (EMI)',
+      icon: CreditCard,
+      badge: 'Financing',
+      badgeColor: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30'
+    },
+    {
+      id: 'prescription',
+      label: 'Rx Doctor Register',
+      icon: Pill,
+      badge: 'Pharmacy',
+      badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30'
+    },
+    {
+      id: 'custom_orders',
+      label: 'Custom Orders & Advance',
+      icon: Cake,
+      badge: 'Bakery/Tailor',
+      badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+    },
+    {
+      id: 'jewelry',
+      label: 'Gold Rate & Karat Calc',
+      icon: Gem,
+      badge: 'Jewelry',
+      badgeColor: 'bg-amber-400/20 text-amber-300 border-amber-400/30'
     },
     {
       id: 'inventory',

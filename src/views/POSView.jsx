@@ -6,6 +6,7 @@ import { Modal } from '../components/Modal.jsx';
 import { AlertModal } from '../components/AlertModal.jsx';
 import { NexcartLogo, NexcartBadge } from '../components/NexcartBranding.jsx';
 import { printReceipt } from '../utils/printReceipt.js';
+import { sendWhatsAppReceipt } from '../utils/whatsappHelper.js';
 import { 
   Search, 
   Scan, 
@@ -25,7 +26,8 @@ import {
   CheckCircle, 
   AlertTriangle,
   History,
-  ShieldCheck
+  ShieldCheck,
+  MessageSquare
 } from 'lucide-react';
 
 export const POSView = () => {
@@ -856,6 +858,14 @@ export const POSView = () => {
 
             {/* Print & Action Buttons */}
             <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => sendWhatsAppReceipt(activeReceipt, store)}
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white shadow-lg flex items-center gap-2 transition-all"
+                title="Send digital tax invoice directly to customer's WhatsApp"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span>Send WhatsApp Receipt</span>
+              </button>
               <button
                 onClick={handlePrintReceipt}
                 className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-glow-sky flex items-center gap-2"

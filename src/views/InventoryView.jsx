@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { usePOS } from '../context/POSContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Modal } from '../components/Modal.jsx';
+import { printBarcodeLabels } from '../utils/barcodeGenerator.js';
+import { exportToExcel, parseExcelFile } from '../utils/excelExport.js';
 import { 
   Package, 
   Plus, 
@@ -20,7 +22,9 @@ import {
   Camera,
   Upload,
   Image as ImageIcon,
-  X
+  X,
+  FileSpreadsheet,
+  QrCode
 } from 'lucide-react';
 
 export const InventoryView = () => {
@@ -197,13 +201,85 @@ export const InventoryView = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAdd}
-          className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-glow-sky flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Product</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Excel Export Button */}
+          <button
+            onClick={() => {
+              const dataToExport = products.map(p => ({
+                Name: p.name,
+                Category: p.category,
+                SKU: p.sku,
+                Barcode: p.barcode,
+                CostPrice: p.costPrice,
+                SalePrice: p.salePrice,
+                StockQuantity: p.stockQuantity,
+                ReorderThreshold: p.reorderThreshold,
+                Unit: p.unit || 'Pcs',
+                Supplier: p.supplier || '',
+                BatchNumber: p.batchNumber || '',
+                ExpiryDate: p.expiryDate || '',
+                IMEINumber: p.imeiNumber || ''
+              }));
+              exportToExcel(dataToExport, 'Nexcart_Inventory_Catalog', 'Products');
+            }}
+            className="px-3 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold transition-all flex items-center gap-1.5"
+            title="Export full inventory catalog to Excel spreadsheet"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            <span>Export Excel</span>
+          </button>
+
+          {/* Bulk Excel Import Button */}
+          <label className="cursor-pointer px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all flex items-center gap-1.5">
+            <Upload className="w-4 h-4 text-amber-400" />
+            <span>Import Excel</span>
+            <input
+              type="file"
+              accept=".xlsx, .xls, .csv"
+              onChange={async (e) => {
+                const file = e.target.files && e.target.files[0];
+                if (!file) return;
+                try {
+                  const rows = await parseExcelFile(file);
+                  if (rows && rows.length > 0) {
+                    let importedCount = 0;
+                    rows.forEach(r => {
+                      if (r.Name || r.name) {
+                        const newProd = {
+                          id: `prod-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+                          name: r.Name || r.name,
+                          category: r.Category || r.category || 'General',
+                          sku: String(r.SKU || r.sku || `SKU-${Date.now().toString().slice(-5)}`),
+                          barcode: String(r.Barcode || r.barcode || ''),
+                          costPrice: Number(r.CostPrice || r.costPrice || 0),
+                          salePrice: Number(r.SalePrice || r.salePrice || 0),
+                          stockQuantity: Number(r.StockQuantity || r.stockQuantity || 10),
+                          reorderThreshold: Number(r.ReorderThreshold || 10),
+                          unit: r.Unit || r.unit || 'Pcs',
+                          supplier: r.Supplier || r.supplier || ''
+                        };
+                        handleSaveProduct(newProd);
+                        importedCount++;
+                      }
+                    });
+                    alert(`Successfully imported ${importedCount} products into inventory!`);
+                  }
+                } catch (err) {
+                  alert('Error parsing Excel file. Please ensure valid .xlsx format.');
+                }
+              }}
+              className="hidden"
+            />
+          </label>
+
+          <button
+            onClick={handleOpenAdd}
+            className="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 font-bold text-xs text-white shadow-glow-sky flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add New Product</span>
+          </button>
+        </div>
       </div>
 
       {/* Search & Category Filter Bar */}
@@ -313,6 +389,16 @@ export const InventoryView = () => {
 
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        {/* Print Barcode Sticker */}
+                        <button
+                          onClick={() => printBarcodeLabels(p, 1)}
+                          className="px-2.5 py-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[10px] font-bold transition-all flex items-center gap-1"
+                          title="Print Barcode Label Sticker"
+                        >
+                          <QrCode className="w-3 h-3" />
+                          <span>Barcode</span>
+                        </button>
+
                         {/* Supplier Stock In */}
                         <button
                           onClick={() => {

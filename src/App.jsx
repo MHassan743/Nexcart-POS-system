@@ -23,6 +23,13 @@ import { SalesmenView } from './views/SalesmenView.jsx';
 import { DiscountsView } from './views/DiscountsView.jsx';
 import { PricingModal } from './components/PricingModal.jsx';
 
+import { RegisterView } from './views/RegisterView.jsx';
+import { WarrantyView } from './views/WarrantyView.jsx';
+import { InstallmentView } from './views/InstallmentView.jsx';
+import { PrescriptionView } from './views/PrescriptionView.jsx';
+import { CustomOrdersView } from './views/CustomOrdersView.jsx';
+import { JewelryView } from './views/JewelryView.jsx';
+
 import { KeyRound, ShieldAlert, Lock } from 'lucide-react';
 
 class ErrorBoundary extends React.Component {
@@ -161,6 +168,18 @@ const MainLayout = () => {
         return <POSView />;
       case 'inventory':
         return <InventoryView />;
+      case 'register':
+        return <RegisterView />;
+      case 'warranty':
+        return <WarrantyView />;
+      case 'installments':
+        return <InstallmentView />;
+      case 'prescription':
+        return <PrescriptionView />;
+      case 'custom_orders':
+        return <CustomOrdersView />;
+      case 'jewelry':
+        return <JewelryView />;
       case 'suppliers':
         return <SuppliersView />;
       case 'purchases':
