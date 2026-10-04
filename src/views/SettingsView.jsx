@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { usePOS } from '../context/POSContext.jsx';
-import { Settings, Save, KeyRound, User, Mail, Building2, Phone, MapPin } from 'lucide-react';
+import { DB } from '../services/db.js';
+import { Modal } from '../components/Modal.jsx';
+import { 
+  Settings, 
+  Save, 
+  KeyRound, 
+  User, 
+  Mail, 
+  Building2, 
+  Phone, 
+  MapPin,
+  Trash2,
+  AlertTriangle,
+  RefreshCw
+} from 'lucide-react';
 
 export const SettingsView = () => {
   const { store, updateStoreConfig } = useAuth();
@@ -19,12 +33,26 @@ export const SettingsView = () => {
   });
 
   const [savedMsg, setSavedMsg] = useState('');
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [resetConfirmInput, setResetConfirmInput] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     updateStoreConfig(form);
     setSavedMsg('Store configuration & Owner credentials saved successfully!');
     setTimeout(() => setSavedMsg(''), 3500);
+  };
+
+  const handleFactoryReset = (e) => {
+    e.preventDefault();
+    if (resetConfirmInput.trim().toUpperCase() !== 'RESET') {
+      alert('Type RESET to confirm system data wipe!');
+      return;
+    }
+
+    DB.resetToZeroMeter();
+    alert('System 0-Meter Reset Complete! All stored inventory, sales, and custom data have been cleared.');
+    window.location.reload();
   };
 
   return (
@@ -216,8 +244,79 @@ export const SettingsView = () => {
             </button>
           </div>
         </form>
+
+        {/* Section 4: Data Management & 0-Meter Factory Reset */}
+        <div className="pt-6 border-t border-slate-800 space-y-3">
+          <h2 className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+            <Trash2 className="w-4 h-4 text-rose-400" />
+            <span>Database Management & 0-Meter Factory Reset</span>
+          </h2>
+          <p className="text-xs text-slate-400">
+            Wipe all stored sales transactions, products, customer balances, job cards, and reset software to 0-meter clean factory state.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => {
+              setResetConfirmInput('');
+              setIsResetModalOpen(true);
+            }}
+            className="px-4 py-2.5 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-rose-300 font-bold text-xs shadow-lg flex items-center gap-2 transition-all"
+          >
+            <RefreshCw className="w-4 h-4 text-rose-400" />
+            <span>Remove Stored Data & Reset System (0-Meter)</span>
+          </button>
+        </div>
       </div>
+
+      {/* 0-Meter Reset Modal */}
+      <Modal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        title="⚠️ System Factory Reset (0-Meter Data Wipe)"
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleFactoryReset} className="space-y-4">
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-200 text-xs space-y-2 text-center">
+            <AlertTriangle className="w-8 h-8 text-rose-400 mx-auto" />
+            <h3 className="font-bold text-sm text-white">Wipe All System Data?</h3>
+            <p className="text-slate-300 text-[11px]">
+              This action will permanently delete all inventory products, sales history, customer khata balances, repair job cards, and custom order logs.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">
+              Type <strong className="text-rose-400">RESET</strong> below to confirm:
+            </label>
+            <input
+              type="text"
+              required
+              placeholder="RESET"
+              value={resetConfirmInput}
+              onChange={(e) => setResetConfirmInput(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-rose-500/40 text-xs font-bold text-rose-300 text-center uppercase tracking-widest focus:outline-none"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsResetModalOpen(false)}
+              className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300 hover:bg-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold text-xs text-white shadow-lg flex items-center gap-1.5"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Confirm 0-Meter Factory Reset</span>
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
-

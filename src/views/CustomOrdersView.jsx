@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { usePOS } from '../context/POSContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Modal } from '../components/Modal.jsx';
-import { printReceipt } from '../utils/printReceipt.js';
+import { printReceipt, printCustomOrderReceipt } from '../utils/printReceipt.js';
 import { 
   Cake, 
   Plus, 
@@ -154,7 +154,7 @@ export const CustomOrdersView = () => {
               </select>
 
               <button
-                onClick={() => printReceipt(ord.id, `Order_${ord.id}`)}
+                onClick={() => printCustomOrderReceipt(ord, store)}
                 className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
                 title="Print Order Receipt"
               >

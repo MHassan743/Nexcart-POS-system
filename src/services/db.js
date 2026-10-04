@@ -630,6 +630,11 @@ export const DB = {
     Object.values(STORAGE_KEYS).forEach(key => {
       localStorage.removeItem(key);
     });
+    localStorage.removeItem('nexcart_job_cards');
+    localStorage.removeItem('nexcart_custom_orders');
+    localStorage.removeItem('nexcart_installment_plans');
+    localStorage.removeItem('nexcart_prescriptions');
+    localStorage.removeItem('nexcart_gold_rates');
     // Re-initialize clean state
     DB.init();
     // Ensure products, transactions, and debts are 100% empty

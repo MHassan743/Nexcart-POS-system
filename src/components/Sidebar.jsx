@@ -42,10 +42,23 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
   // Locked feature modal state
   const [lockedFeatureModal, setLockedFeatureModal] = useState({ isOpen: false, feature: null, requestSent: false });
 
-  // 6 Enterprise Features lock check
+  // 6 Enterprise Features + 6 Industry Category Features lock check
   const isFeatureUnlocked = (featureId) => {
     // Non-locked items (Core POS features)
-    const lockedKeys = ['suppliers', 'salesmen', 'reconciliation', 'audit', 'reports', 'customers'];
+    const lockedKeys = [
+      'suppliers', 
+      'salesmen', 
+      'reconciliation', 
+      'audit', 
+      'reports', 
+      'customers',
+      'register',
+      'warranty',
+      'installments',
+      'prescription',
+      'custom_orders',
+      'jewelry'
+    ];
     if (!lockedKeys.includes(featureId)) return true;
 
     // Premium plan unlocks ALL features

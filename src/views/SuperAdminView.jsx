@@ -180,7 +180,13 @@ export const SuperAdminView = () => {
     reconciliation: false,
     audit: false,
     reports: false,
-    outdoor_medicine: false
+    outdoor_medicine: false,
+    register: false,
+    warranty: false,
+    installments: false,
+    prescription: false,
+    custom_orders: false,
+    jewelry: false
   });
 
   const handleOpenFeatureModal = (targetStore) => {
@@ -194,7 +200,13 @@ export const SuperAdminView = () => {
       reconciliation: isPremium ? true : Boolean(existing.reconciliation),
       audit: isPremium ? true : Boolean(existing.audit),
       reports: isPremium ? true : Boolean(existing.reports),
-      outdoor_medicine: isPremium ? true : Boolean(existing.outdoor_medicine)
+      outdoor_medicine: isPremium ? true : Boolean(existing.outdoor_medicine),
+      register: isPremium ? true : Boolean(existing.register),
+      warranty: isPremium ? true : Boolean(existing.warranty),
+      installments: isPremium ? true : Boolean(existing.installments),
+      prescription: isPremium ? true : Boolean(existing.prescription),
+      custom_orders: isPremium ? true : Boolean(existing.custom_orders),
+      jewelry: isPremium ? true : Boolean(existing.jewelry)
     });
     setIsFeatureModalOpen(true);
   };
@@ -855,7 +867,13 @@ export const SuperAdminView = () => {
               { id: 'reconciliation', label: 'Stock Reconciliation (Anti-Leakage)', desc: 'Physical audit comparisons & stock leak detection' },
               { id: 'audit', label: 'Security Audit Trail', desc: 'Detailed log of all cashier activity & price overrides' },
               { id: 'reports', label: 'Advanced Analytics & Executive Reporting', desc: 'Full profit breakdown, top seller heatmaps & CSV exports' },
-              { id: 'outdoor_medicine', label: 'Outdoor Medicine Sourcing (Medical)', desc: 'External chemist medicine sourcing & billing' }
+              { id: 'outdoor_medicine', label: 'Outdoor Medicine Sourcing (Medical)', desc: 'External chemist medicine sourcing & billing' },
+              { id: 'register', label: 'Day Register & Z-Report', desc: 'Daily cash drawer opening/closing and Z-Report reconciliation' },
+              { id: 'warranty', label: 'Warranty & Repairs Job Cards', desc: 'IMEI warranty lookup & device repair job card tracking' },
+              { id: 'installments', label: 'Installments (EMI) Financing Tracker', desc: 'Customer installment plans, down payments & monthly EMI logs' },
+              { id: 'prescription', label: 'Rx Doctor Register (Pharmacy)', desc: 'Doctor prescription logs, dosage instructions & batch tracking' },
+              { id: 'custom_orders', label: 'Custom Orders & Advance Booking', desc: 'Bakery cakes, tailoring & crockery advance order bookings' },
+              { id: 'jewelry', label: 'Gold Rate & Karat Calculator (Jewelry)', desc: 'Live gold price per Tola/Gram & Karat/Kharad valuation' }
             ].map(feat => {
               const isChecked = Boolean(tempPermissions[feat.id]);
               const isRequested = selectedStoreForFeatures?.featureRequests?.[feat.id] === 'pending';

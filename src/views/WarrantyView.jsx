@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { usePOS } from '../context/POSContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Modal } from '../components/Modal.jsx';
-import { printReceipt } from '../utils/printReceipt.js';
+import { printReceipt, printJobCardReceipt } from '../utils/printReceipt.js';
 import { 
   ShieldCheck, 
   Wrench, 
@@ -214,7 +214,7 @@ export const WarrantyView = () => {
                   </select>
 
                   <button
-                    onClick={() => printReceipt(job.id, `JobCard_${job.id}`)}
+                    onClick={() => printJobCardReceipt(job, store)}
                     className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
                     title="Print Job Slip"
                   >
